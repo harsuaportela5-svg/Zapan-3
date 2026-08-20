@@ -4,7 +4,7 @@ const deFabrica = [
     { documento: "1022394857", contrasena: "clave2", nombre: "Andrés Felipe Ospina", casa: "Casa 12 - Manzana A", parqueadero: "Sin parqueadero asignado", saldo: "$0 (Al día)" },
     { documento: "52345678", contrasena: "clave3", nombre: "Diana Marcela Pinto", casa: "Casa 112 - Manzana G", parqueadero: "Parqueadero #112 (Privado) - 🚗 Vehículo: KGV-456", saldo: "$360.000 (2 meses en mora)" },
     { documento: "1013456789", contrasena: "clave4", nombre: "Jorge Eliecer Silva", casa: "Casa 67 - Manzana C", parqueadero: "Parqueadero #67 (Privado) - 🚗 Vehículo: MNO-789", saldo: "$0 (Al día)" },
-    { documento: "39765432", contrasena: "clave5", nombre: "Sandra Milena Gómez", casa: "Casa 89 - Manzana D", parqueadero: "Parqueadero #89 (Privado) - Sin Vehículo", saldo: "$180.000 (Mes actual pendiente)" },
+    { documento: "39765432", contrasena: "clave5", nombre: "Sandra Milena Gómez", casa: "Casa 89 - Manzana D", parqueadero: "Parqueadero #89 (Privado) - 🏍️ Vehículo: QWE-12C", saldo: "$180.000 (Mes actual pendiente)" },
     { documento: "1030987654", contrasena: "clave6", nombre: "Ricardo Antonio Cruz", casa: "Casa 5 - Manzana A", parqueadero: "Parqueadero #5 (Privado) - 🚗 Vehículo: DFG-321", saldo: "$0 (Al día)" },
     { documento: "21456789", contrasena: "clave7", nombre: "Claudia Patricia Rey", casa: "Casa 143 - Manzana H", parqueadero: "Sin parqueadero asignado", saldo: "$540.000 (Acuerdo de pago activo)" },
     { documento: "1015678123", contrasena: "clave8", nombre: "Esteban Camilo Torres", casa: "Casa 21 - Manzana B", parqueadero: "Parqueadero #21 (Privado) - 🚗 Vehículo: JKL-012", saldo: "$0 (Al día)" },
@@ -13,9 +13,10 @@ const deFabrica = [
 if (!localStorage.getItem('usuariosPropietarios')) localStorage.setItem('usuariosPropietarios', JSON.stringify(deFabrica));
 const getUsers = () => JSON.parse(localStorage.getItem('usuariosPropietarios'));
 const tabLogin = document.getElementById('tabLogin'), tabRegister = document.getElementById('tabRegister'), formLogin = document.getElementById('formLogin'), formRegister = document.getElementById('formRegister'), authCard = document.getElementById('authCard'), dashboardCard = document.getElementById('dashboardCard'), adminCard = document.getElementById('adminCard');
-const lblNombreUsuario = document.getElementById('lblNombreUsuario'), lblInmueble = document.getElementById('lblInmueble'), lblParqueadero = document.getElementById('lblParqueadero'), lblSaldo = document.getElementById('lblSaldo'), btnCerrarSesion = document.getElementById('btnCerrarSesion'), btnCerrarSesionAdmin = document.getElementById('btnCerrarSesionAdmin');
+const lblNombreUsuario = document.getElementById('lblNombreUsuario'), lblInmueble = document.getElementById('lblInmueble'), lblParqueadero = document.getElementById('lblParqueadero'), btnCerrarSesion = document.getElementById('btnCerrarSesion'), btnCerrarSesionAdmin = document.getElementById('btnCerrarSesionAdmin');
 const tabAdminCartera = document.getElementById('tabAdminCartera'), tabAdminParqueaderos = document.getElementById('tabAdminParqueaderos'), secAdminCartera = document.getElementById('secAdminCartera'), secAdminParqueaderos = document.getElementById('secAdminParqueaderos'), tablaAdminCuerpo = document.getElementById('tablaAdminCuerpo'), tablaParqueaderosCuerpo = document.getElementById('tablaParqueaderosCuerpo'), statTotalCasas = document.getElementById('statTotalCasas');
 const thOrdenarCasa = document.getElementById('thOrdenarCasa'), thOrdenarSaldo = document.getElementById('thOrdenarSaldo');
+const recParqExtra = document.getElementById('recParqExtra'), recTotalMes = document.getElementById('recTotalMes'), lblSaldoBadge = document.getElementById('lblSaldoBadge');
 let sesion = null, criterioOrden = "casa";
 tabLogin?.addEventListener('click', () => { tabLogin.classList.add('active'); tabRegister.classList.remove('active'); formLogin.classList.remove('hidden'); formRegister.classList.add('hidden'); });
 tabRegister?.addEventListener('click', () => { tabRegister.classList.add('active'); tabLogin.classList.remove('active'); formRegister.classList.remove('hidden'); formLogin.classList.add('hidden'); });
@@ -42,7 +43,22 @@ formLogin?.addEventListener('submit', (e) => {
         else { renderUser(); dashboardCard.classList.remove('hidden'); }
     } else alert("Credenciales incorrectas.");
 });
-const renderUser = () => { if (sesion) { lblNombreUsuario.textContent = sesion.nombre; lblInmueble.textContent = sesion.casa; lblParqueadero.textContent = sesion.parqueadero; lblSaldo.textContent = sesion.saldo; } };
+
+const renderUser = () => {
+    if (!sesion) return;
+    lblNombreUsuario.textContent = sesion.nombre; lblInmueble.textContent = sesion.casa; lblParqueadero.textContent = sesion.parqueadero;
+    let extra = 0;
+    if (sesion.parqueadero.includes("🚗")) extra = 30000;
+    else if (sesion.parqueadero.includes("🏍️")) extra = 15000;
+    if (recParqExtra) recParqExtra.textContent = `$${extra.toLocaleString('es-CO')}`;
+    if (recTotalMes) recTotalMes.textContent = `$${(180000 + extra).toLocaleString('es-CO')}`;
+    if (lblSaldoBadge) {
+        lblSaldoBadge.textContent = sesion.saldo; lblSaldoBadge.className = "status-badge";
+        if (sesion.saldo.includes("mora")) lblSaldoBadge.classList.add("status-red");
+        else if (sesion.saldo.includes("pendiente") || sesion.saldo.includes("Acuerdo")) lblSaldoBadge.classList.add("status-orange");
+        else lblSaldoBadge.classList.add("status-green");
+    }
+};
 const extraerNumero = (txt) => { const m = txt.match(/\d+/); return m ? parseInt(m, 10) : 0; };
 const extraerMora = (txt) => { if (txt.includes("Al día") || txt.includes("N/A")) return 0; return extraerNumero(txt.replace(/\./g, '')); };
 function renderAdmin() {
@@ -77,11 +93,13 @@ window.goParq = (doc) => {
 window.goCarros = (doc) => {
     let list = getUsers(); const i = list.findIndex(u => u.documento === doc); if (i === -1) return;
     if (list[i].parqueadero.toLowerCase().includes("sin parqueadero")) return alert("Error: Primero asigne una plaza disponible con el botón 'Plaza'.");
-    const tipo = prompt(`TIPO DE VEHÍCULO\n1. Carro\n2. Motocicleta`); if (tipo !== "1" && tipo !== "2") return alert("Opción no válida.");
+    const tipo = prompt(`TIPO DE VEHÍCULO\n1. Carro ($30.000)\n2. Motocicleta ($15.000)`); if (tipo !== "1" && tipo !== "2") return alert("Opción no válida.");
     const pl = prompt(`Ingrese la placa (Ej: ABC123):`);
     if (pl) {
-        const icono = tipo === "1" ? "🚗" : "🏍️"; const partes = list[i].parqueadero.split(" - ");
-        list[i].parqueadero = `${partes[0]} - ${icono} Vehículo: ${pl.toUpperCase()}`;
+        const icono = tipo === "1" ? "🚗" : "%" + "1F6F5" + "%"; 
+        const realIcon = tipo === "1" ? "🚗" : "🏍️";
+        const partes = list[i].parqueadero.split(" - ");
+        list[i].parqueadero = `${partes[0]} - ${realIcon} Vehículo: ${pl.toUpperCase()}`;
         localStorage.setItem('usuariosPropietarios', JSON.stringify(list)); alert("Vehículo vinculado."); renderParq();
     }
 };
@@ -94,16 +112,6 @@ window.goCar = (doc) => {
     else if (op === "3") { const s = prompt("Nuevo saldo:", list[i].saldo); if (s) list[i].saldo = s.trim(); }
     else return;
     localStorage.setItem('usuariosPropietarios', JSON.stringify(list)); renderAdmin();
-};
-
-window.registrarVehiculoSimulado = () => {
-    const pl = prompt("Placa (Ej: ABC123):"); if (!pl) return;
-    let list = getUsers(); const i = list.findIndex(u => u.documento === sesion.documento);
-    if (i !== -1) {
-        const partes = list[i].parqueadero.split(" - ");
-        list[i].parqueadero = `${partes[0]} - 🚗 Vehículo: ${pl.toUpperCase()}`;
-        localStorage.setItem('usuariosPropietarios', JSON.stringify(list)); sesion = list[i]; renderUser(); alert("Registrado.");
-    }
 };
 btnCerrarSesion?.addEventListener('click', () => { sesion = null; dashboardCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
 btnCerrarSesionAdmin?.addEventListener('click', () => { sesion = null; adminCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
