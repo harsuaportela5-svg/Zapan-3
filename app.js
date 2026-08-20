@@ -19,7 +19,6 @@ function obtenerUsuarios() {
     return JSON.parse(localStorage.getItem('usuariosPropietarios'));
 }
 
-// Elementos de la interfaz
 const tabLogin = document.getElementById('tabLogin');
 const tabRegister = document.getElementById('tabRegister');
 const formLogin = document.getElementById('formLogin');
@@ -28,36 +27,20 @@ const authCard = document.getElementById('authCard');
 const dashboardCard = document.getElementById('dashboardCard');
 const adminCard = document.getElementById('adminCard');
 
-// Elementos del panel de Propietario
 const lblNombreUsuario = document.getElementById('lblNombreUsuario');
 const lblInmueble = document.getElementById('lblInmueble');
 const lblParqueadero = document.getElementById('lblParqueadero');
 const lblSaldo = document.getElementById('lblSaldo');
 const btnCerrarSesion = document.getElementById('btnCerrarSesion');
 const btnCerrarSesionAdmin = document.getElementById('btnCerrarSesionAdmin');
-
-// Elementos del panel de Administración
 const tablaAdminCuerpo = document.getElementById('tablaAdminCuerpo');
 const statTotalCasas = document.getElementById('statTotalCasas');
 
 let usuarioSesionActiva = null;
 
-// Intercambio de pestañas visuales
-tabLogin?.addEventListener('click', () => {
-    tabLogin.classList.add('active');
-    tabRegister.classList.remove('active');
-    formLogin.classList.remove('hidden');
-    formRegister.classList.add('hidden');
-});
+tabLogin?.addEventListener('click', () => { tabLogin.classList.add('active'); tabRegister.classList.remove('active'); formLogin.classList.remove('hidden'); formRegister.classList.add('hidden'); });
+tabRegister?.addEventListener('click', () => { tabRegister.classList.add('active'); tabLogin.classList.remove('active'); formRegister.classList.remove('hidden'); formLogin.classList.add('hidden'); });
 
-tabRegister?.addEventListener('click', () => {
-    tabRegister.classList.add('active');
-    tabLogin.classList.remove('active');
-    formRegister.classList.remove('hidden');
-    formLogin.classList.add('hidden');
-});
-
-// Registro de usuarios
 formRegister?.addEventListener('submit', function(e) {
     e.preventDefault();
     const nombre = document.getElementById('regNombre').value.trim();
@@ -66,24 +49,17 @@ formRegister?.addEventListener('submit', function(e) {
     const contrasena = document.getElementById('regContrasena').value.trim();
     
     let listaUsuarios = obtenerUsuarios();
+    if (listaUsuarios.some(u => u.documento === documento)) { alert("El documento ya está registrado."); return; }
     
-    if (listaUsuarios.some(u => u.documento === documento)) {
-        alert("El documento ingresado ya está registrado.");
-        return;
-    }
-    
-    const numParqueaderoAleatorio = Math.floor(Math.random() * 150) + 1;
-    const nuevoUsuario = { documento, contrasena, nombre, casa, parqueadero: `Parqueadero #${numParqueaderoAleatorio} (Asignado) - Sin Vehículo`, saldo: "$0 (Al día)" };
-    
+    const nuevoUsuario = { documento, contrasena, nombre, casa, parqueadero: "Sin parqueadero asignado", saldo: "$0 (Al día)" };
     listaUsuarios.push(nuevoUsuario);
     localStorage.setItem('usuariosPropietarios', JSON.stringify(listaUsuarios));
     
-    alert(`¡Registro Exitoso! Inmueble ${casa} añadido al sistema.`);
+    alert(`¡Registro Exitoso! Casa añadida.`);
     formRegister.reset();
     tabLogin.click();
 });
 
-// Inicio de Sesión Discriminado (Admin vs Propietario)
 formLogin?.addEventListener('submit', function(e) {
     e.preventDefault();
     const txtDocumento = document.getElementById('txtUsuario').value.trim();
@@ -96,22 +72,18 @@ formLogin?.addEventListener('submit', function(e) {
         usuarioSesionActiva = usuarioEncontrado;
         formLogin.reset();
         authCard.classList.add('hidden');
-
         if (usuarioEncontrado.documento === "admin") {
-            // Desplegar Panel de Administración General
             cargarPanelAdministrador();
             adminCard.classList.remove('hidden');
         } else {
-            // Desplegar Panel de Propietario Normal
             actualizarInterfazDashboard();
             dashboardCard.classList.remove('hidden');
         }
     } else {
-        alert("Error: Documento o contraseña incorrectos.");
+        alert("Error: Credenciales incorrectas.");
     }
 });
 
-// Renderizar Panel de Propietario
 function actualizarInterfazDashboard() {
     if (usuarioSesionActiva) {
         lblNombreUsuario.textContent = usuarioSesionActiva.nombre;
@@ -121,56 +93,94 @@ function actualizarInterfazDashboard() {
     }
 }
 
-// NUEVA FUNCIÓN: Construir la tabla de visualización global del Administrador
+// NUEVA FUNCIÓN: Panel de Administración con Visualización de Credenciales y Parqueaderos
 function cargarPanelAdministrador() {
     const listaUsuarios = obtenerUsuarios();
-    // Filtrar al admin de la lista para mostrar solo las casas reales
     const inquilinos = listaUsuarios.filter(u => u.documento !== "admin");
     
-    // Actualizar métrica en el badge
     if (statTotalCasas) statTotalCasas.textContent = inquilinos.length;
-    
     if (!tablaAdminCuerpo) return;
-    tablaAdminCuerpo.innerHTML = ""; // Limpiar tabla previa
+    tablaAdminCuerpo.innerHTML = ""; 
     
     inquilinos.forEach(usuario => {
         const fila = document.createElement('tr');
         
-        // Determinar color de alerta según el estado de cuenta
         let colorClase = "status-green";
         if (usuario.saldo.includes("mora")) colorClase = "status-red";
         else if (usuario.saldo.includes("pendiente") || usuario.saldo.includes("Acuerdo")) colorClase = "status-orange";
 
         fila.innerHTML = `
-            <td><strong>${usuario.casa}</strong></td>
-            <td>${usuario.nombre}</td>
-            <td><span class="status-badge ${colorClase}">${usuario.saldo}</span></td>
+            <td>
+                <strong>${usuario.casa}</strong><br>
+                <small style="color:#0288d1; font-weight:bold;">${usuario.parqueadero}</small>
+            </td>
+            <td>
+                <strong>${usuario.nombre}</strong><br>
+                <small style="color:#666;">User: ${usuario.documento} | Clave: <strong>${usuario.contrasena}</strong></small><br>
+                <span class="status-badge ${colorClase}" style="margin-top:4px;">${usuario.saldo}</span>
+            </td>
+            <td>
+                <button class="btn-manage" onclick="gestionarCuentaPropia('${usuario.documento}')">Gestionar</button>
+            </td>
         `;
         tablaAdminCuerpo.appendChild(fila);
     });
 }
 
-// Función para registrar vehículos
+// NUEVA FUNCIÓN GLOBAL: Permite a la administradora cambiar Parqueaderos, Claves o Saldos
+window.gestionarCuentaPropia = function(documentoUsuario) {
+    let listaUsuarios = obtenerUsuarios();
+    const index = listaUsuarios.findIndex(u => u.documento === documentoUsuario);
+    if (index === -1) return;
+
+    const usuario = listaUsuarios[index];
+    
+    // Menú de opciones de administración
+    const opcion = prompt(
+        `GESTIÓN DE LA ${usuario.casa.toUpperCase()}\nPropietario: ${usuario.nombre}\n\n` +
+        `Seleccione una opción escribiendo el número:\n` +
+        `1. Modificar Contraseña\n` +
+        `2. Asignar / Cambiar Parqueadero\n` +
+        `3. Actualizar Estado de Cuenta (Saldo)`
+    );
+
+    if (opcion === "1") {
+        const nuevaClave = prompt(`Contraseña actual: ${usuario.contrasena}\nIngrese la nueva contraseña:`);
+        if (nuevaClave) {
+            listaUsuarios[index].contrasena = nuevaClave.trim();
+            alert("Contraseña actualizada con éxito.");
+        }
+    } else if (opcion === "2") {
+        const nuevoParq = prompt(`Asignación actual:\n${usuario.parqueadero}\n\nEscriba el nuevo parqueadero asignado (Ej: Parqueadero #85 (Privado) - Sin Vehículo):`);
+        if (nuevoParq) {
+            listaUsuarios[index].parqueadero = nuevoParq.trim();
+            alert("Parqueadero reasignado correctamente.");
+        }
+    } else if (opcion === "3") {
+        const nuevoSaldo = prompt(`Estado de cuenta actual: ${usuario.saldo}\n\nEscriba el nuevo estado (Ej: $0 (Al día) ó $180.000 (Mes actual pendiente) ó $360.000 (2 meses en mora)):`);
+        if (nuevoSaldo) {
+            listaUsuarios[index].saldo = nuevoSaldo.trim();
+            alert("Estado financiero actualizado.");
+        }
+    } else {
+        if(opcion !== null) alert("Opción no válida.");
+        return;
+    }
+
+    // Guardar cambios y refrescar la tabla de la administradora inmediatamente
+    localStorage.setItem('usuariosPropietarios', JSON.stringify(listaUsuarios));
+    cargarPanelAdministrador();
+};
+
 window.registrarVehiculoSimulado = function() {
     const placa = prompt("Ingrese la placa del vehículo a registrar (Ej: ABC123):");
     if (!placa) return;
-    
     let listaUsuarios = obtenerUsuarios();
     const index = listaUsuarios.findIndex(u => u.documento === usuarioSesionActiva.documento);
-    
     if (index !== -1) {
         const parqueaderoActual = listaUsuarios[index].parqueadero;
         const parteParqueadero = parqueaderoActual.split(" - ");
         listaUsuarios[index].parqueadero = `${parteParqueadero[0]} - Vehículo: ${placa.toUpperCase()}`;
-        
         localStorage.setItem('usuariosPropietarios', JSON.stringify(listaUsuarios));
         usuarioSesionActiva = listaUsuarios[index];
-        actualizarInterfazDashboard();
-        alert(`¡Vehículo registrado exitosamente!`);
-    }
-};
-
-// Eventos de botones Cerrar Sesión
-btnCerrarSesion?.addEventListener('click', () => { usuarioSesionActiva = null; dashboardCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
-btnCerrarSesionAdmin?.addEventListener('click', () => { usuarioSesionActiva = null; adminCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
     
