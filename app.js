@@ -1,3 +1,4 @@
+// Usuarios por defecto (Pre-cargados de fábrica para pruebas)
 const usuariosPredeterminados = [
     { 
         documento: "1010101010", 
@@ -17,15 +18,17 @@ const usuariosPredeterminados = [
     }
 ];
 
+// Inicializar la base de datos local en el navegador si no existe
 if (!localStorage.getItem('usuariosPropietarios')) {
     localStorage.setItem('usuariosPropietarios', JSON.stringify(usuariosPredeterminados));
 }
 
+// Función para obtener la lista actualizada de usuarios desde LocalStorage
 function obtenerUsuarios() {
     return JSON.parse(localStorage.getItem('usuariosPropietarios'));
 }
 
-// Elementos de la interfaz
+// Elementos de la interfaz (Estructura HTML)
 const tabLogin = document.getElementById('tabLogin');
 const tabRegister = document.getElementById('tabRegister');
 const formLogin = document.getElementById('formLogin');
@@ -33,17 +36,17 @@ const formRegister = document.getElementById('formRegister');
 const authCard = document.getElementById('authCard');
 const dashboardCard = document.getElementById('dashboardCard');
 
-// Elementos del panel de usuario
+// Elementos del panel dinámico de usuario
 const lblNombreUsuario = document.getElementById('lblNombreUsuario');
 const lblInmueble = document.getElementById('lblInmueble');
 const lblParqueadero = document.getElementById('lblParqueadero');
 const lblSaldo = document.getElementById('lblSaldo');
 const btnCerrarSesion = document.getElementById('btnCerrarSesion');
 
-// Variable global para mantener el rastro del usuario logueado en la sesión actual
+// Variable global para rastrear al propietario con sesión abierta
 let usuarioSesionActiva = null;
 
-// Cambiar de pestañas
+// Intercambio de pestañas visuales (Ingresar / Registrarse)
 tabLogin?.addEventListener('click', () => {
     tabLogin.classList.add('active');
     tabRegister.classList.remove('active');
@@ -58,7 +61,7 @@ tabRegister?.addEventListener('click', () => {
     formLogin.classList.add('hidden');
 });
 
-// Registro de usuarios nuevos
+// Lógica para registrar propietarios nuevos desde el formulario
 formRegister?.addEventListener('submit', function(e) {
     e.preventDefault();
     const nombre = document.getElementById('regNombre').value.trim();
@@ -68,12 +71,13 @@ formRegister?.addEventListener('submit', function(e) {
     
     let listaUsuarios = obtenerUsuarios();
     
+    // Validar si el documento ya está registrado en el almacenamiento local
     if (listaUsuarios.some(u => u.documento === documento)) {
         alert("El documento ingresado ya está registrado.");
         return;
     }
     
-    // Asignar un número de parqueadero aleatorio de prueba al registrarse
+    // Asignar un número de parqueadero aleatorio provisional para la simulación
     const numParqueaderoAleatorio = Math.floor(Math.random() * 150) + 1;
     
     const nuevoUsuario = { 
@@ -90,10 +94,10 @@ formRegister?.addEventListener('submit', function(e) {
     
     alert(`¡Registro Exitoso, ${nombre}! Parqueadero asignado temporalmente. Ya puedes ingresar.`);
     formRegister.reset();
-    tabLogin.click();
+    tabLogin.click(); // Redirige al login de inmediato
 });
 
-// Inicio de Sesión
+// Lógica para Validar el Inicio de Sesión
 formLogin?.addEventListener('submit', function(e) {
     e.preventDefault();
     const txtDocumento = document.getElementById('txtUsuario').value.trim();
@@ -106,6 +110,7 @@ formLogin?.addEventListener('submit', function(e) {
         usuarioSesionActiva = usuarioEncontrado;
         actualizarInterfazDashboard();
         
+        // Transición visual: Oculta el login y despliega el panel privado
         authCard.classList.add('hidden');
         dashboardCard.classList.remove('hidden');
         formLogin.reset();
@@ -114,7 +119,7 @@ formLogin?.addEventListener('submit', function(e) {
     }
 });
 
-// Función para refrescar los textos en pantalla
+// Función para renderizar los textos dinámicos del usuario en pantalla
 function actualizarInterfazDashboard() {
     if (usuarioSesionActiva) {
         lblNombreUsuario.textContent = usuarioSesionActiva.nombre;
@@ -124,32 +129,35 @@ function actualizarInterfazDashboard() {
     }
 }
 
-// Simulación de Registro de Vehículo desde el panel
+// Función global corregida para registrar vehículos en tiempo real
 window.registrarVehiculoSimulado = function() {
     const placa = prompt("Ingrese la placa del vehículo a registrar (Ej: ABC123):");
-    if (!placa) return;
+    if (!placa) return; // Salir si el usuario cancela el cuadro de diálogo
     
     let listaUsuarios = obtenerUsuarios();
-    // Encontrar al usuario en la base de datos real del LocalStorage
     const index = listaUsuarios.findIndex(u => u.documento === usuarioSesionActiva.documento);
     
     if (index !== -1) {
-        // Extraer solo la parte del número del parqueadero original
-        const parteParqueadero = listaUsuarios[index].parqueadero.split(" - ")[0];
+        const parqueaderoActual = listaUsuarios[index].parqueadero;
+        
+        // Extraemos limpiamente el prefijo del parqueadero antes del separador " - "
+        const parteParqueadero = parqueaderoActual.split(" - ")[0];
+        
+        // Inyectamos el nuevo formato de cadena limpia
         listaUsuarios[index].parqueadero = `${parteParqueadero} - Vehículo: ${placa.toUpperCase()}`;
         
-        // Guardar cambios en el almacenamiento del navegador
+        // Sincronizamos la base de datos local del navegador
         localStorage.setItem('usuariosPropietarios', JSON.stringify(listaUsuarios));
         
-        // Actualizar la sesión activa y la pantalla
+        // Actualizamos la sesión en memoria y refrescamos la vista del cliente
         usuarioSesionActiva = listaUsuarios[index];
         actualizarInterfazDashboard();
         
-        alert("¡Vehículo autorizado y registrado exitosamente en su parqueadero!");
+        alert(`¡Vehículo con placa ${placa.toUpperCase()} autorizado exitosamente en su parqueadero!`);
     }
 };
 
-// Cerrar Sesión
+// Lógica del botón Cerrar Sesión
 btnCerrarSesion?.addEventListener('click', () => {
     usuarioSesionActiva = null;
     dashboardCard.classList.add('hidden');
