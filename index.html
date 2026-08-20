@@ -1,145 +1,179 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bosques de Zapan Etapa 3 - Portal</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
-        <!-- SECCIÓN 1: ACCESO (LOGIN Y REGISTRO) -->
-        <div id="authCard" class="card">
-            <div class="header">
-                <div class="logo">🌿</div>
-                <h2>Bosques de Zapan Etapa 3</h2>
-                <p>Portal de Propietarios</p>
-            </div>
+const usuariosPredeterminados = [
+    { documento: "1010101010", contrasena: "1234", nombre: "Carlos Mendoza", casa: "Casa 42 - Manzana B", parqueadero: "Parqueadero #42 (Privado) - Vehículo: XYZ-123", saldo: "$0 (Al día)" },
+    { documento: "80123456", contrasena: "clave1", nombre: "María Consuelo Pinzón", casa: "Casa 105 - Manzana F", parqueadero: "Parqueadero #105 (Privado) - Sin Vehículo", saldo: "$180.000 (Mes actual pendiente)" },
+    { documento: "1022394857", contrasena: "clave2", nombre: "Andrés Felipe Ospina", casa: "Casa 12 - Manzana A", parqueadero: "Sin parqueadero asignado", saldo: "$0 (Al día)" },
+    { documento: "52345678", contrasena: "clave3", nombre: "Diana Marcela Pinto", casa: "Casa 112 - Manzana G", parqueadero: "Parqueadero #112 (Privado) - Vehículo: KGV-456", saldo: "$360.000 (2 meses en mora)" },
+    { documento: "1013456789", contrasena: "clave4", nombre: "Jorge Eliecer Silva", casa: "Casa 67 - Manzana C", parqueadero: "Parqueadero #67 (Privado) - Vehículo: MNO-789", saldo: "$0 (Al día)" },
+    { documento: "39765432", contrasena: "clave5", nombre: "Sandra Milena Gómez", casa: "Casa 89 - Manzana D", parqueadero: "Parqueadero #89 (Privado) - Sin Vehículo", saldo: "$180.000 (Mes actual pendiente)" },
+    { documento: "1030987654", contrasena: "clave6", nombre: "Ricardo Antonio Cruz", casa: "Casa 5 - Manzana A", parqueadero: "Parqueadero #5 (Privado) - Vehículo: DFG-321", saldo: "$0 (Al día)" },
+    { documento: "21456789", contrasena: "clave7", nombre: "Claudia Patricia Rey", casa: "Casa 143 - Manzana H", parqueadero: "Sin parqueadero asignado", saldo: "$540.000 (Acuerdo de pago activo)" },
+    { documento: "1015678123", contrasena: "clave8", nombre: "Esteban Camilo Torres", casa: "Casa 21 - Manzana B", parqueadero: "Parqueadero #21 (Privado) - Vehículo: JKL-012", saldo: "$0 (Al día)" },
+    { documento: "admin", contrasena: "admin123", nombre: "Administración Central", casa: "Oficina Principal", parqueadero: "Zonas de Visitantes (Control General)", saldo: "N/A" }
+];
 
-            <div class="tabs">
-                <button id="tabLogin" class="tab-btn active">Ingresar</button>
-                <button id="tabRegister" class="tab-btn">Registrarse</button>
-            </div>
+if (!localStorage.getItem('usuariosPropietarios')) {
+    localStorage.setItem('usuariosPropietarios', JSON.stringify(usuariosPredeterminados));
+}
 
-            <!-- Formulario Login -->
-            <form id="formLogin" class="portal-form">
-                <div class="input-group">
-                    <label for="txtUsuario">Documento / Usuario</label>
-                    <input type="text" id="txtUsuario" placeholder="Ingrese su documento" required>
-                </div>
-                <div class="input-group">
-                    <label for="txtContrasena">Contraseña</label>
-                    <input type="password" id="txtContrasena" placeholder="Ingrese su contraseña" required>
-                </div>
-                <button type="submit" id="btnIngresar" class="btn-primary">Ingresar al portal</button>
+function obtenerUsuarios() {
+    return JSON.parse(localStorage.getItem('usuariosPropietarios'));
+}
+
+// Elementos de la interfaz principal
+const tabLogin = document.getElementById('tabLogin');
+const tabRegister = document.getElementById('tabRegister');
+const formLogin = document.getElementById('formLogin');
+const formRegister = document.getElementById('formRegister');
+const authCard = document.getElementById('authCard');
+const dashboardCard = document.getElementById('dashboardCard');
+const adminCard = document.getElementById('adminCard');
+
+// Elementos del panel de Propietario
+const lblNombreUsuario = document.getElementById('lblNombreUsuario');
+const lblInmueble = document.getElementById('lblInmueble');
+const lblParqueadero = document.getElementById('lblParqueadero');
+const lblSaldo = document.getElementById('lblSaldo');
+const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+const btnCerrarSesionAdmin = document.getElementById('btnCerrarSesionAdmin');
+
+// Elementos del panel de Administración Avanzada
+const tabAdminCartera = document.getElementById('tabAdminCartera');
+const tabAdminParqueaderos = document.getElementById('tabAdminParqueaderos');
+const secAdminCartera = document.getElementById('secAdminCartera');
+const secAdminParqueaderos = document.getElementById('secAdminParqueaderos');
+const tablaAdminCuerpo = document.getElementById('tablaAdminCuerpo');
+const tablaParqueaderosCuerpo = document.getElementById('tablaParqueaderosCuerpo');
+const statTotalCasas = document.getElementById('statTotalCasas');
+
+let usuarioSesionActiva = null;
+
+// Intercambio de pestañas Login / Registro
+tabLogin?.addEventListener('click', () => { tabLogin.classList.add('active'); tabRegister.classList.remove('active'); formLogin.classList.remove('hidden'); formRegister.classList.add('hidden'); });
+tabRegister?.addEventListener('click', () => { tabRegister.classList.add('active'); tabLogin.classList.remove('active'); formRegister.classList.remove('hidden'); formLogin.classList.add('hidden'); });
+
+// Intercambio de pestañas internas del Admin
+tabAdminCartera?.addEventListener('click', () => { tabAdminCartera.classList.add('active'); tabAdminParqueaderos.classList.remove('active'); secAdminCartera.classList.remove('hidden'); secAdminParqueaderos.classList.add('hidden'); });
+tabAdminParqueaderos?.addEventListener('click', () => { tabAdminParqueaderos.classList.add('active'); tabAdminCartera.classList.remove('active'); secAdminParqueaderos.classList.remove('hidden'); secAdminCartera.classList.add('hidden'); cargarInventarioParqueaderos(); });
+
+formRegister?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('regNombre').value.trim();
+    const documento = document.getElementById('regDocumento').value.trim();
+    const casa = document.getElementById('regCasa').value.trim();
+    const contrasena = document.getElementById('regContrasena').value.trim();
+    
+    let listaUsuarios = obtenerUsuarios();
+    if (listaUsuarios.some(u => u.documento === documento)) { alert("El documento ya está registrado."); return; }
+    
+    const nuevoUsuario = { documento, contrasena, nombre, casa, parqueadero: "Sin parqueadero asignado", saldo: "$0 (Al día)" };
+    listaUsuarios.push(nuevoUsuario);
+    localStorage.setItem('usuariosPropietarios', JSON.stringify(listaUsuarios));
+    
+    alert(`¡Registro Exitoso! Inmueble ${casa} añadido.`);
+    formRegister.reset();
+    tabLogin.click();
+});
+
+formLogin?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const txtDocumento = document.getElementById('txtUsuario').value.trim();
+    const txtContrasena = document.getElementById('txtContrasena').value.trim();
+    
+    const listaUsuarios = obtenerUsuarios();
+    const usuarioEncontrado = listaUsuarios.find(u => u.documento === txtDocumento && u.contrasena === txtContrasena);
+    
+    if (usuarioEncontrado) {
+        usuarioSesionActiva = usuarioEncontrado;
+        formLogin.reset();
+        authCard.classList.add('hidden');
+        if (usuarioEncontrado.documento === "admin") {
+            tabAdminCartera.click(); // Resetear a la primera pestaña de administración
+            cargarPanelAdministrador();
+            adminCard.classList.remove('hidden');
+        } else {
+            actualizarInterfazDashboard();
+            dashboardCard.classList.remove('hidden');
+        }
+    } else {
+        alert("Error: Credenciales incorrectas.");
+    }
+});
+
+function actualizarInterfazDashboard() {
+    if (usuarioSesionActiva) {
+        lblNombreUsuario.textContent = usuarioSesionActiva.nombre;
+        lblInmueble.textContent = usuarioSesionActiva.casa;
+        lblParqueadero.textContent = usuarioSesionActiva.parqueadero;
+        lblSaldo.textContent = usuarioSesionActiva.saldo;
+    }
+}
+
+// Renderizar Pestaña 1: Cartera General
+function cargarPanelAdministrador() {
+    const listaUsuarios = obtenerUsuarios();
+    const inquilinos = listaUsuarios.filter(u => u.documento !== "admin");
+    
+    if (statTotalCasas) statTotalCasas.textContent = inquilinos.length;
+    if (!tablaAdminCuerpo) return;
+    tablaAdminCuerpo.innerHTML = ""; 
+    
+    inquilinos.forEach(usuario => {
+        const fila = document.createElement('tr');
+        let colorClase = "status-green";
+        if (usuario.saldo.includes("mora")) colorClase = "status-red";
+        else if (usuario.saldo.includes("pendiente") || usuario.saldo.includes("Acuerdo")) colorClase = "status-orange";
+
+        fila.innerHTML = `
+            <td>
+                <strong>${usuario.casa}</strong><br>
+                <small style="color:#0288d1; font-weight:600;">${usuario.parqueadero}</small>
+            </td>
+            <td>
+                <strong>${usuario.nombre}</strong><br>
+                <small style="color:#666;">User: ${usuario.documento} | Clave: <strong>${usuario.contrasena}</strong></small><br>
+                <span class="status-badge ${colorClase}" style="margin-top:4px;">${usuario.saldo}</span>
+            </td>
+            <td>
+                <button class="btn-manage" onclick="gestionarCuentaPropia('${usuario.documento}')">Gestionar</button>
+            </td>
+        `;
+        tablaAdminCuerpo.appendChild(fila);
+    });
+}
+
+// NUEVA FUNCIÓN: Renderizar Pestaña 2: Módulo Independiente de Parqueaderos
+function cargarInventarioParqueaderos() {
+    if (!tablaParqueaderosCuerpo) return;
+    tablaParqueaderosCuerpo.innerHTML = "";
+    
+    const listaUsuarios = obtenerUsuarios();
+    const inquilinos = listaUsuarios.filter(u => u.documento !== "admin");
+
+    inquilinos.forEach(usuario => {
+        const fila = document.createElement('tr');
+        const tieneParq = !usuario.parqueadero.toLowerCase().includes("sin parqueadero");
+        
+        let detalleParqueadero = "No asignado";
+        let vehiculo = "N/A";
+        
+        if (tieneParq) {
+            // Dividir de forma segura para extraer el espacio y el vehículo por separado
+            const partes = usuario.parqueadero.split(" - ");
+            detalleParqueadero = partes[0] || usuario.parqueadero;
+            vehiculo = partes[1] || "Sin vehículo registrado";
+        }
+
+        fila.innerHTML = `
+            <td>
+                <strong>${detalleParqueadero}</strong><br>
+                <span class="status-badge ${tieneParq ? 'status-green' : 'status-orange'}">
+                    ${tieneParq ? 'Ocupado / Asignado' : 'Disponible'}
+                </span>
+            </td>
+            <td>
+                <strong>${usuario.casa}</strong><br>
+                <small style="color:#555;">Propietario: ${usuario.nombre}</small><br>
+                <small style="color:#c53030; font-weight:bold;">${vehiculo}</small>
+            </td>
+            <td>
                 
-                <div class="demo-box">
-                    <strong>Modo demostración</strong><br>
-                    Propietario: 1010101010 / 1234<br>
-                    Administración: admin / admin123
-                </div>
-            </form>
-
-            <!-- Formulario Registro -->
-            <form id="formRegister" class="portal-form hidden">
-                <div class="input-group">
-                    <label for="regNombre">Nombre Completo</label>
-                    <input type="text" id="regNombre" placeholder="Ej. Juan Pérez" required>
-                </div>
-                <div class="input-group">
-                    <label for="regDocumento">Documento de Identidad</label>
-                    <input type="text" id="regDocumento" placeholder="Ej. 10203040" required>
-                </div>
-                <div class="input-group">
-                    <label for="regCasa">Identificación del Inmueble</label>
-                    <input type="text" id="regCasa" placeholder="Ej. Casa 45 - Manzana C" required>
-                </div>
-                <div class="input-group">
-                    <label for="regContrasena">Crea tu Contraseña</label>
-                    <input type="password" id="regContrasena" placeholder="Mínimo 4 caracteres" required>
-                </div>
-                <button type="submit" id="btnRegistrar" class="btn-primary">Crear Cuenta de Propietario</button>
-            </form>
-        </div>
-
-        <!-- SECCIÓN 2: PANEL PRIVADO DEL PROPIETARIO -->
-        <div id="dashboardCard" class="card hidden">
-            <div class="header-dashboard">
-                <div class="user-welcome">
-                    <span>Bienvenido/a,</span>
-                    <h3 id="lblNombreUsuario">Cargando...</h3>
-                </div>
-                <button id="btnCerrarSesion" class="btn-logout">Cerrar Sesión</button>
-            </div>
-
-            <div class="dashboard-content">
-                <div class="info-tile">
-                    <span class="tile-icon">🏡</span>
-                    <span class="tile-label">Tu Inmueble</span>
-                    <strong id="lblInmueble">Cargando...</strong>
-                </div>
-
-                <div class="info-tile alternative">
-                    <span class="tile-icon">🚗</span>
-                    <span class="tile-label">Asignación de Parqueadero</span>
-                    <strong id="lblParqueadero">Cargando...</strong>
-                </div>
-
-                <div class="info-tile highlight">
-                    <span class="tile-icon">💰</span>
-                    <span class="tile-label">Estado de Administración</span>
-                    <strong id="lblSaldo">Cargando...</strong>
-                </div>
-
-                <div class="menu-options">
-                    <h4>Accesos Directos</h4>
-                    <button class="menu-btn" onclick="registrarVehiculoSimulado()">📝 Registrar / Actualizar Vehículo</button>
-                    <button class="menu-btn" onclick="alert('Funcionalidad en desarrollo: Descarga de recibos')">📄 Descargar Recibo de Pago</button>
-                    <button class="menu-btn" onclick="alert('Funcionalidad en desarrollo: Reserva de zonas comunes')">📅 Reservar Zonas Comunes</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN 3: PANEL DE ADMINISTRACIÓN AVANZADA -->
-        <div id="adminCard" class="card hidden">
-            <div class="header-dashboard">
-                <div class="user-welcome">
-                    <span>Panel de Control</span>
-                    <h3>Administración Central</h3>
-                </div>
-                <button id="btnCerrarSesionAdmin" class="btn-logout">Cerrar Sesión</button>
-            </div>
-
-            <div class="admin-stats">
-                <div class="stat-box">
-                    <span class="stat-num" id="statTotalCasas">0</span>
-                    <span class="stat-lbl">Casas Activas</span>
-                </div>
-                <div class="stat-box alert-stat">
-                    <span class="stat-num">$1.080.000</span>
-                    <span class="stat-lbl">Mora Consolidated</span>
-                </div>
-            </div>
-
-            <div class="admin-content">
-                <h4>Base de Datos y Control de Copropietarios</h4>
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Inmueble</th>
-                                <th>Propietario / Datos de Acceso</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaAdminCuerpo">
-                            <!-- Inyección dinámica -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="app.js"></script>
-</body>
-</html>
