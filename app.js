@@ -17,29 +17,24 @@ const getUsers = () => JSON.parse(localStorage.getItem('usuariosPropietarios'));
 const tabLogin = document.getElementById('tabLogin'), tabRegister = document.getElementById('tabRegister'), formLogin = document.getElementById('formLogin'), formRegister = document.getElementById('formRegister'), authCard = document.getElementById('authCard'), dashboardCard = document.getElementById('dashboardCard'), adminCard = document.getElementById('adminCard');
 const lblNombreUsuario = document.getElementById('lblNombreUsuario'), lblInmueble = document.getElementById('lblInmueble'), lblParqueadero = document.getElementById('lblParqueadero'), lblSaldo = document.getElementById('lblSaldo'), btnCerrarSesion = document.getElementById('btnCerrarSesion'), btnCerrarSesionAdmin = document.getElementById('btnCerrarSesionAdmin');
 const tabAdminCartera = document.getElementById('tabAdminCartera'), tabAdminParqueaderos = document.getElementById('tabAdminParqueaderos'), secAdminCartera = document.getElementById('secAdminCartera'), secAdminParqueaderos = document.getElementById('secAdminParqueaderos'), tablaAdminCuerpo = document.getElementById('tablaAdminCuerpo'), tablaParqueaderosCuerpo = document.getElementById('tablaParqueaderosCuerpo'), statTotalCasas = document.getElementById('statTotalCasas');
-let sesion = null;
+const thOrdenarCasa = document.getElementById('thOrdenarCasa'), thOrdenarSaldo = document.getElementById('thOrdenarSaldo');
+let sesion = null, criterioOrden = "casa";
 
 tabLogin?.addEventListener('click', () => { tabLogin.classList.add('active'); tabRegister.classList.remove('active'); formLogin.classList.remove('hidden'); formRegister.classList.add('hidden'); });
 tabRegister?.addEventListener('click', () => { tabRegister.classList.add('active'); tabLogin.classList.remove('active'); formRegister.classList.remove('hidden'); formLogin.classList.add('hidden'); });
 tabAdminCartera?.addEventListener('click', () => { tabAdminCartera.classList.add('active'); tabAdminParqueaderos.classList.remove('active'); secAdminCartera.classList.remove('hidden'); secAdminParqueaderos.classList.add('hidden'); renderAdmin(); });
 tabAdminParqueaderos?.addEventListener('click', () => { tabAdminParqueaderos.classList.add('active'); tabAdminCartera.classList.remove('active'); secAdminParqueaderos.classList.remove('hidden'); secAdminCartera.classList.add('hidden'); renderParq(); });
+thOrdenarCasa?.addEventListener('click', () => { criterioOrden = "casa"; renderAdmin(); });
+thOrdenarSaldo?.addEventListener('click', () => { criterioOrden = "mora"; renderAdmin(); });
 
 formRegister?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const nombre = document.getElementById('regNombre').value.trim();
-    const documento = document.getElementById('regDocumento').value.trim();
-    const casa = document.getElementById('regCasa').value.trim();
-    const contrasena = document.getElementById('regContrasena').value.trim();
-    
+    const nombre = document.getElementById('regNombre').value.trim(), documento = document.getElementById('regDocumento').value.trim(), casa = document.getElementById('regCasa').value.trim(), contrasena = document.getElementById('regContrasena').value.trim();
     let lista = getUsers();
     if (lista.some(u => u.documento === documento)) return alert("Este documento ya está registrado.");
-    
     lista.push({ documento, contrasena, nombre, casa, parqueadero: "Sin parqueadero asignado", saldo: "$0 (Al día)" });
     localStorage.setItem('usuariosPropietarios', JSON.stringify(lista));
-    
-    alert(`¡Registro Exitoso!\nBienvenido/a ${nombre}. Ya puedes iniciar sesión.`);
-    formRegister.reset();
-    tabLogin.click();
+    alert("¡Registro Exitoso!"); formRegister.reset(); tabLogin.click();
 });
 
 formLogin?.addEventListener('submit', (e) => {
@@ -54,9 +49,13 @@ formLogin?.addEventListener('submit', (e) => {
 });
 
 const renderUser = () => { if (sesion) { lblNombreUsuario.textContent = sesion.nombre; lblInmueble.textContent = sesion.casa; lblParqueadero.textContent = sesion.parqueadero; lblSaldo.textContent = sesion.saldo; } };
+const extraerNumero = (txt) => { const m = txt.match(/\d+/); return m ? parseInt(m, 10) : 0; };
+const extraerMora = (txt) => { if (txt.includes("Al día") || txt.includes("N/A")) return 0; return extraerNumero(txt.replace(/\./g, '')); };
 
 function renderAdmin() {
-    const list = getUsers().filter(u => u.documento !== "admin");
+    let list = getUsers().filter(u => u.documento !== "admin");
+    if (criterioOrden === "casa") { list.sort((a, b) => extraerNumero(a.casa) - extraerNumero(b.casa)); } 
+    else if (criterioOrden === "mora") { list.sort((a, b) => extraerMora(b.saldo) - extraerMora(a.saldo)); }
     if (!tablaAdminCuerpo) return; tablaAdminCuerpo.innerHTML = "";
     list.forEach(u => {
         let cls = "status-green"; if (u.saldo.includes("mora")) cls = "status-red"; else if (u.saldo.includes("pendiente") || u.saldo.includes("Acuerdo")) cls = "status-orange";
@@ -86,7 +85,7 @@ window.goCar = (doc) => {
     let list = getUsers(); const i = list.findIndex(u => u.documento === doc); if (i === -1) return;
     const op = prompt(`GESTIÓN - ${list[i].casa}\n1. Clave\n2. Parqueadero\n3. Saldo`);
     if (op === "1") { const k = prompt("Nueva clave:"); if (k) list[i].contrasena = k.trim(); }
-    else if (opciosn === "2") { const p = prompt("Nuevo parqueadero:", list[i].parqueadero); if (p) list[i].parqueadero = p.trim(); }
+    else if (op === "2") { const p = prompt("Nuevo parqueadero:", list[i].parqueadero); if (p) list[i].parqueadero = p.trim(); }
     else if (op === "3") { const s = prompt("Nuevo saldo:", list[i].saldo); if (s) list[i].saldo = s.trim(); }
     else return;
     localStorage.setItem('usuariosPropietarios', JSON.stringify(list)); renderAdmin();
@@ -97,9 +96,4 @@ window.registrarVehiculoSimulado = () => {
     let list = getUsers(); const i = list.findIndex(u => u.documento === sesion.documento);
     if (i !== -1) {
         list[i].parqueadero = `${list[i].parqueadero.split(" - ")[0]} - Vehículo: ${pl.toUpperCase()}`;
-        localStorage.setItem('usuariosPropietarios', JSON.stringify(list)); sesion = list[i]; renderUser(); alert("Registrado.");
-    }
-};
-
-btnCerrarSesion?.addEventListener('click', () => { sesion = null; dashboardCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
-btnCerrarSesionAdmin?.addEventListener('click', () => { sesion = null; adminCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
+        
