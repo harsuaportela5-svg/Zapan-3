@@ -184,3 +184,23 @@ window.registrarVehiculoSimulado = function() {
         localStorage.setItem('usuariosPropietarios', JSON.stringify(listaUsuarios));
         usuarioSesionActiva = listaUsuarios[index];
     
+        // ... (viene de la lógica de arriba del vehículo)
+        localStorage.setItem('usuariosPropietarios', JSON.stringify(listaUsuarios));
+        usuarioSesionActiva = listaUsuarios[index];
+        actualizarInterfazDashboard();
+        alert("¡Vehículo registrado exitosamente!");
+    }
+};
+
+// Control de botones para cerrar sesión al final del documento
+btnCerrarSesion?.addEventListener('click', () => {
+    usuarioSesionActiva = null;
+    dashboardCard.classList.add('hidden');
+    authCard.classList.remove('hidden');
+});
+
+btnCerrarSesionAdmin?.addEventListener('click', () => {
+    usuarioSesionActiva = null;
+    adminCard.classList.add('hidden');
+    authCard.classList.remove('hidden');
+});
