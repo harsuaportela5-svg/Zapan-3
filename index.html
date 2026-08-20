@@ -100,7 +100,7 @@
             </div>
         </div>
 
-        <!-- SECCIÓN 3: NUEVO PANEL DE ADMINISTRACIÓN GENERAL -->
+        <!-- SECCIÓN 3: PANEL DE ADMINISTRACIÓN AVANZADA -->
         <div id="adminCard" class="card hidden">
             <div class="header-dashboard">
                 <div class="user-welcome">
@@ -110,32 +110,30 @@
                 <button id="btnCerrarSesionAdmin" class="btn-logout">Cerrar Sesión</button>
             </div>
 
-            <!-- Métricas Resumen -->
             <div class="admin-stats">
                 <div class="stat-box">
                     <span class="stat-num" id="statTotalCasas">0</span>
-                    <span class="stat-lbl">Casas Registradas</span>
+                    <span class="stat-lbl">Casas Activas</span>
                 </div>
                 <div class="stat-box alert-stat">
-                    <span class="stat-num" id="statTotalMora">$1.080.000</span>
-                    <span class="stat-lbl">Mora Total de Cartera</span>
+                    <span class="stat-num">$1.080.000</span>
+                    <span class="stat-lbl">Mora Consolidated</span>
                 </div>
             </div>
 
-            <!-- Tabla de Estados de Cuenta -->
             <div class="admin-content">
-                <h4>Cartera e Inmuebles General - Etapa 3</h4>
+                <h4>Base de Datos y Control de Copropietarios</h4>
                 <div class="table-container">
                     <table class="admin-table">
                         <thead>
                             <tr>
                                 <th>Inmueble</th>
-                                <th>Propietario</th>
-                                <th>Estado / Saldo</th>
+                                <th>Propietario / Datos de Acceso</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody id="tablaAdminCuerpo">
-                            <!-- Los datos de las casas se inyectarán dinámicamente aquí -->
+                            <!-- Inyección dinámica -->
                         </tbody>
                     </table>
                 </div>
