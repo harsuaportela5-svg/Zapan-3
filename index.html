@@ -1,14 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#123B35">
-  <title>Bosques de Zapan Etapa 3</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bosques de Zapan Etapa 3 - Portal</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="app"></div>
-  <script src="app.js"></script>
+    <div class="container">
+        <div class="card">
+            <!-- Encabezado -->
+            <div class="header">
+                <div class="logo">🌿</div>
+                <h2>Bosques de Zapan Etapa 3</h2>
+                <p>Portal de Propietarios</p>
+            </div>
+
+            <!-- Pestañas de Navegación -->
+            <div class="tabs">
+                <button id="tabLogin" class="tab-btn active">Ingresar</button>
+                <button id="tabRegister" class="tab-btn">Registrarse</button>
+            </div>
+
+            <!-- Formulario de Login -->
+            <form id="formLogin" class="portal-form">
+                <div class="input-group">
+                    <label for="txtUsuario">Documento / Usuario</label>
+                    <input type="text" id="txtUsuario" placeholder="Ingrese su documento" required>
+                </div>
+                <div class="input-group">
+                    <label for="txtContrasena">Contraseña</label>
+                    <input type="password" id="txtContrasena" placeholder="Ingrese su contraseña" required>
+                </div>
+                <button type="submit" id="btnIngresar" class="btn-primary">Ingresar al portal</button>
+                
+                <div class="demo-box">
+                    <strong>Modo demostración</strong><br>
+                    Propietario: 1010101010 / 1234<br>
+                    Administración: admin / admin123
+                </div>
+            </form>
+
+            <!-- Formulario de Registro (Oculto al inicio) -->
+            <form id="formRegister" class="portal-form hidden">
+                <div class="input-group">
+                    <label for="regNombre">Nombre Completo</label>
+                    <input type="text" id="regNombre" placeholder="Ej. Juan Pérez" required>
+                </div>
+                <div class="input-group">
+                    <label for="regDocumento">Documento de Identidad</label>
+                    <input type="text" id="regDocumento" placeholder="Ej. 10203040" required>
+                </div>
+                <div class="input-group">
+                    <label for="regCasa">Identificación del Inmueble</label>
+                    <input type="text" id="regCasa" placeholder="Ej. Casa 45 - Manzana C" required>
+                </div>
+                <div class="input-group">
+                    <label for="regContrasena">Crea tu Contraseña</label>
+                    <input type="password" id="regContrasena" placeholder="Mínimo 4 caracteres" required>
+                </div>
+                <button type="submit" id="btnRegistrar" class="btn-primary">Crear Cuenta de Propietario</button>
+            </form>
+        </div>
+    </div>
+    <script src="app.js"></script>
 </body>
 </html>
