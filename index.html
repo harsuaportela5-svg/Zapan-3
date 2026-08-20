@@ -56,7 +56,7 @@
             </form>
         </div>
 
-        <!-- SECCIÓN 2: PORTAL PROPIETARIO -->
+        <!-- SECCIÓN 2: PORTAL PROPIETARIO (RENOVADO) -->
         <div id="dashboardCard" class="card hidden">
             <div class="header-dashboard">
                 <div class="user-welcome">
@@ -65,23 +65,36 @@
                 </div>
                 <button id="btnCerrarSesion" class="btn-logout">Salir</button>
             </div>
+
+            <!-- Ficha resumida de Inmueble y Parqueadero -->
             <div class="info-tile">
                 <span class="tile-icon">🏡</span>
-                <span class="tile-label">Tu Inmueble</span>
+                <span class="tile-label">Ubicación del Inmueble</span>
                 <strong id="lblInmueble">...</strong>
             </div>
             <div class="info-tile alternative">
-                <span class="tile-icon">🚗</span>
-                <span class="tile-label">Parqueadero asignado</span>
+                <span class="tile-icon">🔒</span>
+                <span class="tile-label">Asignación Logística</span>
                 <strong id="lblParqueadero">...</strong>
             </div>
-            <div class="info-tile highlight">
-                <span class="tile-icon">💰</span>
-                <span class="tile-label">Estado de Administración</span>
-                <strong id="lblSaldo">...</strong>
+
+            <!-- Módulo Financiero: Estado de Cuenta Detallado -->
+            <div class="receipt-box">
+                <h4>📄 Estado de Cuenta a la Fecha</h4>
+                <div class="receipt-row"><span>Administración Base:</span><strong id="recAdminBase">$180.000</strong></div>
+                <div class="receipt-row"><span>Cobro Parqueadero:</span><strong id="recParqExtra">$0</strong></div>
+                <div class="receipt-row total-row"><span>TOTAL MES ACTUAL:</span><strong id="recTotalMes">$180.000</strong></div>
+                <div class="receipt-row balance-row"><span>ESTADO CARTERA:</span><span id="lblSaldoBadge" class="status-badge">...</span></div>
             </div>
-            <div class="menu-options">
-                <button class="menu-btn" onclick="registrarVehiculoSimulado()">📝 Actualizar Vehículo / Placa</button>
+
+            <!-- Historial de Pagos Recientes -->
+            <div class="history-box">
+                <h4>📜 Historial de Pagos Recientes</h4>
+                <ul class="history-list">
+                    <li><span>Julio 2026</span><strong style="color:green;">Aprobado ✓</strong></li>
+                    <li><span>Junio 2026</span><strong style="color:green;">Aprobado ✓</strong></li>
+                    <li><span>Mayo 2026</span><strong style="color:green;">Aprobado ✓</strong></li>
+                </ul>
             </div>
         </div>
 
@@ -100,8 +113,8 @@
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th id="thOrdenarCasa" style="cursor:pointer; color:#0288d1; user-select:none;">🏡 Inmueble 🔽</th>
-                                <th id="thOrdenarSaldo" style="cursor:pointer; color:#0288d1; user-select:none;">Datos / Estado 🔽</th>
+                                <th id="thOrdenarCasa" style="cursor:pointer; color:#0288d1;">🏡 Inmueble 🔽</th>
+                                <th id="thOrdenarSaldo" style="cursor:pointer; color:#0288d1;">Datos / Estado 🔽</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
