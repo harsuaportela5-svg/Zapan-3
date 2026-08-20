@@ -26,12 +26,20 @@ tabAdminParqueaderos?.addEventListener('click', () => { tabAdminParqueaderos.cla
 
 formRegister?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const nombre = document.getElementById('regNombre').value.trim(), documento = document.getElementById('regDocumento').value.trim(), casa = document.getElementById('regCasa').value.trim(), contrasena = document.getElementById('regContrasena').value.trim();
+    const nombre = document.getElementById('regNombre').value.trim();
+    const documento = document.getElementById('regDocumento').value.trim();
+    const casa = document.getElementById('regCasa').value.trim();
+    const contrasena = document.getElementById('regContrasena').value.trim();
+    
     let lista = getUsers();
-    if (lista.some(u => u.documento === documento)) return alert("Documento ya registrado.");
+    if (lista.some(u => u.documento === documento)) return alert("Este documento ya está registrado.");
+    
     lista.push({ documento, contrasena, nombre, casa, parqueadero: "Sin parqueadero asignado", saldo: "$0 (Al día)" });
     localStorage.setItem('usuariosPropietarios', JSON.stringify(lista));
-    alert("¡Registro Exitoso!"); formRegister.reset(); tabLogin.click();
+    
+    alert(`¡Registro Exitoso!\nBienvenido/a ${nombre}. Ya puedes iniciar sesión.`);
+    formRegister.reset();
+    tabLogin.click();
 });
 
 formLogin?.addEventListener('submit', (e) => {
@@ -49,7 +57,6 @@ const renderUser = () => { if (sesion) { lblNombreUsuario.textContent = sesion.n
 
 function renderAdmin() {
     const list = getUsers().filter(u => u.documento !== "admin");
-    if (statTotalCasas) statTotalCasas.textContent = list.length;
     if (!tablaAdminCuerpo) return; tablaAdminCuerpo.innerHTML = "";
     list.forEach(u => {
         let cls = "status-green"; if (u.saldo.includes("mora")) cls = "status-red"; else if (u.saldo.includes("pendiente") || u.saldo.includes("Acuerdo")) cls = "status-orange";
@@ -79,7 +86,7 @@ window.goCar = (doc) => {
     let list = getUsers(); const i = list.findIndex(u => u.documento === doc); if (i === -1) return;
     const op = prompt(`GESTIÓN - ${list[i].casa}\n1. Clave\n2. Parqueadero\n3. Saldo`);
     if (op === "1") { const k = prompt("Nueva clave:"); if (k) list[i].contrasena = k.trim(); }
-    else if (op === "2") { const p = prompt("Nuevo parqueadero:", list[i].parqueadero); if (p) list[i].parqueadero = p.trim(); }
+    else if (opciosn === "2") { const p = prompt("Nuevo parqueadero:", list[i].parqueadero); if (p) list[i].parqueadero = p.trim(); }
     else if (op === "3") { const s = prompt("Nuevo saldo:", list[i].saldo); if (s) list[i].saldo = s.trim(); }
     else return;
     localStorage.setItem('usuariosPropietarios', JSON.stringify(list)); renderAdmin();
