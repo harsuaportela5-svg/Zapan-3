@@ -97,3 +97,4 @@ window.registrarVehiculoSimulado = () => {
     if (i !== -1) {
         list[i].parqueadero = `${list[i].parqueadero.split(" - ")[0]} - Vehículo: ${pl.toUpperCase()}`;
         
+localStorage.setItem('usuariosPropietarios', JSON.stringify(list)); sesion = list[i]; renderUser(); alert("Registrado.");}};btnCerrarSesion?.addEventListener('click', () => { sesion = null; dashboardCard.classList.add('hidden'); authCard.classList.remove('hidden'); });btnCerrarSesionAdmin?.addEventListener('click', () => { sesion = null; adminCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
