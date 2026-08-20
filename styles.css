@@ -130,3 +130,8 @@
 .menu-btn:hover {
     background: #f5f5f5;
 }
+/* Color temático azul para la tarjeta de parqueaderos */
+.info-tile.alternative {
+    background: #f0f4f8;
+    border-left-color: #0288d1;
+}
