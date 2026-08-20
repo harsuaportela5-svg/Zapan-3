@@ -79,7 +79,6 @@
                     <strong id="lblInmueble">Cargando...</strong>
                 </div>
 
-                <!-- NUEVA TARJETA: INFORMACIÓN DE PARQUEADERO -->
                 <div class="info-tile alternative">
                     <span class="tile-icon">🚗</span>
                     <span class="tile-label">Asignación de Parqueadero</span>
@@ -97,6 +96,48 @@
                     <button class="menu-btn" onclick="registrarVehiculoSimulado()">📝 Registrar / Actualizar Vehículo</button>
                     <button class="menu-btn" onclick="alert('Funcionalidad en desarrollo: Descarga de recibos')">📄 Descargar Recibo de Pago</button>
                     <button class="menu-btn" onclick="alert('Funcionalidad en desarrollo: Reserva de zonas comunes')">📅 Reservar Zonas Comunes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: NUEVO PANEL DE ADMINISTRACIÓN GENERAL -->
+        <div id="adminCard" class="card hidden">
+            <div class="header-dashboard">
+                <div class="user-welcome">
+                    <span>Panel de Control</span>
+                    <h3>Administración Central</h3>
+                </div>
+                <button id="btnCerrarSesionAdmin" class="btn-logout">Cerrar Sesión</button>
+            </div>
+
+            <!-- Métricas Resumen -->
+            <div class="admin-stats">
+                <div class="stat-box">
+                    <span class="stat-num" id="statTotalCasas">0</span>
+                    <span class="stat-lbl">Casas Registradas</span>
+                </div>
+                <div class="stat-box alert-stat">
+                    <span class="stat-num" id="statTotalMora">$1.080.000</span>
+                    <span class="stat-lbl">Mora Total de Cartera</span>
+                </div>
+            </div>
+
+            <!-- Tabla de Estados de Cuenta -->
+            <div class="admin-content">
+                <h4>Cartera e Inmuebles General - Etapa 3</h4>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Inmueble</th>
+                                <th>Propietario</th>
+                                <th>Estado / Saldo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaAdminCuerpo">
+                            <!-- Los datos de las casas se inyectarán dinámicamente aquí -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
