@@ -62,7 +62,7 @@
             </form>
         </div>
 
-        <!-- SECCIÓN 2: PANEL PRIVADO DEL PROPIETARIO (OCULTO POR DEFECTO) -->
+        <!-- SECCIÓN 2: PANEL PRIVADO DEL PROPIETARIO -->
         <div id="dashboardCard" class="card hidden">
             <div class="header-dashboard">
                 <div class="user-welcome">
@@ -79,6 +79,13 @@
                     <strong id="lblInmueble">Cargando...</strong>
                 </div>
 
+                <!-- NUEVA TARJETA: INFORMACIÓN DE PARQUEADERO -->
+                <div class="info-tile alternative">
+                    <span class="tile-icon">🚗</span>
+                    <span class="tile-label">Asignación de Parqueadero</span>
+                    <strong id="lblParqueadero">Cargando...</strong>
+                </div>
+
                 <div class="info-tile highlight">
                     <span class="tile-icon">💰</span>
                     <span class="tile-label">Estado de Administración</span>
@@ -87,9 +94,9 @@
 
                 <div class="menu-options">
                     <h4>Accesos Directos</h4>
+                    <button class="menu-btn" onclick="registrarVehiculoSimulado()">📝 Registrar / Actualizar Vehículo</button>
                     <button class="menu-btn" onclick="alert('Funcionalidad en desarrollo: Descarga de recibos')">📄 Descargar Recibo de Pago</button>
                     <button class="menu-btn" onclick="alert('Funcionalidad en desarrollo: Reserva de zonas comunes')">📅 Reservar Zonas Comunes</button>
-                    <button class="menu-btn" onclick="alert('Funcionalidad en desarrollo: PQRS')">💬 Radicar Petición / Queja</button>
                 </div>
             </div>
         </div>
