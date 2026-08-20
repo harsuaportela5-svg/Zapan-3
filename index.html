@@ -8,21 +8,20 @@
 </head>
 <body>
     <div class="container">
-        <div class="card">
-            <!-- Encabezado -->
+        <!-- SECCIÓN 1: ACCESO (LOGIN Y REGISTRO) -->
+        <div id="authCard" class="card">
             <div class="header">
                 <div class="logo">🌿</div>
                 <h2>Bosques de Zapan Etapa 3</h2>
                 <p>Portal de Propietarios</p>
             </div>
 
-            <!-- Pestañas de Navegación -->
             <div class="tabs">
                 <button id="tabLogin" class="tab-btn active">Ingresar</button>
                 <button id="tabRegister" class="tab-btn">Registrarse</button>
             </div>
 
-            <!-- Formulario de Login -->
+            <!-- Formulario Login -->
             <form id="formLogin" class="portal-form">
                 <div class="input-group">
                     <label for="txtUsuario">Documento / Usuario</label>
@@ -41,7 +40,7 @@
                 </div>
             </form>
 
-            <!-- Formulario de Registro (Oculto al inicio) -->
+            <!-- Formulario Registro -->
             <form id="formRegister" class="portal-form hidden">
                 <div class="input-group">
                     <label for="regNombre">Nombre Completo</label>
@@ -61,6 +60,38 @@
                 </div>
                 <button type="submit" id="btnRegistrar" class="btn-primary">Crear Cuenta de Propietario</button>
             </form>
+        </div>
+
+        <!-- SECCIÓN 2: PANEL PRIVADO DEL PROPIETARIO (OCULTO POR DEFECTO) -->
+        <div id="dashboardCard" class="card hidden">
+            <div class="header-dashboard">
+                <div class="user-welcome">
+                    <span>Bienvenido/a,</span>
+                    <h3 id="lblNombreUsuario">Cargando...</h3>
+                </div>
+                <button id="btnCerrarSesion" class="btn-logout">Cerrar Sesión</button>
+            </div>
+
+            <div class="dashboard-content">
+                <div class="info-tile">
+                    <span class="tile-icon">🏡</span>
+                    <span class="tile-label">Tu Inmueble</span>
+                    <strong id="lblInmueble">Cargando...</strong>
+                </div>
+
+                <div class="info-tile highlight">
+                    <span class="tile-icon">💰</span>
+                    <span class="tile-label">Estado de Administración</span>
+                    <strong id="lblSaldo">Cargando...</strong>
+                </div>
+
+                <div class="menu-options">
+                    <h4>Accesos Directos</h4>
+                    <button class="menu-btn" onclick="alert('Funcionalidad en desarrollo: Descarga de recibos')">📄 Descargar Recibo de Pago</button>
+                    <button class="menu-btn" onclick="alert('Funcionalidad en desarrollo: Reserva de zonas comunes')">📅 Reservar Zonas Comunes</button>
+                    <button class="menu-btn" onclick="alert('Funcionalidad en desarrollo: PQRS')">💬 Radicar Petición / Queja</button>
+                </div>
+            </div>
         </div>
     </div>
     <script src="app.js"></script>
