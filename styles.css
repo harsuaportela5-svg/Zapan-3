@@ -1,54 +1,147 @@
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f7f6;color:#17221f}button,input,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
-:root{--green:#123b35;--green2:#1f6658;--mint:#e7f3ef;--gold:#c49a4a;--red:#b94040;--yellow:#b57d18;--text:#17221f;--muted:#687572;--white:#fff;--border:#dfe8e5;--shadow:0 12px 35px rgba(18,59,53,.08)}
-.login{min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(135deg,#123b35,#1f6658)}.login-card{width:min(430px,100%);background:#fff;border-radius:26px;padding:32px;box-shadow:0 25px 70px rgba(0,0,0,.18)}.brand{text-align:center}.brand-mark{width:72px;height:72px;border-radius:22px;background:var(--green);color:#fff;display:grid;place-items:center;margin:0 auto 16px;font-size:32px}.brand h1{margin:0;font-size:25px}.brand p{color:var(--muted);margin:8px 0 28px}.field{margin:14px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}.field input{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:12px;outline:none}.field input:focus{border-color:var(--green2);box-shadow:0 0 0 3px #e4f1ee}.primary{width:100%;border:0;border-radius:12px;background:var(--green);color:#fff;padding:14px;font-weight:800}.demo{margin-top:18px;padding:14px;background:#f6faf8;border-radius:14px;font-size:13px;color:#53635f}.demo b{color:var(--green)}.error{color:var(--red);font-size:13px;margin-top:10px;text-align:center}
+/* ==========================================================================
+   1. ESTILOS GENERALES Y ESTRUCTURA BASE
+   ========================================================================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f3;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
 
-.shell{min-height:100vh;display:grid;grid-template-columns:250px 1fr}.sidebar{background:var(--green);color:#fff;padding:24px 16px;position:sticky;top:0;height:100vh}.side-brand{display:flex;gap:11px;align-items:center;padding:4px 10px 26px}.side-brand .mini{width:40px;height:40px;border-radius:12px;background:#fff;color:var(--green);display:grid;place-items:center;font-weight:900}.side-brand strong{font-size:14px;line-height:1.2}.nav{display:grid;gap:7px}.nav button{background:transparent;border:0;color:#d9ebe6;text-align:left;padding:12px;border-radius:11px}.nav button.active,.nav button:hover{background:rgba(255,255,255,.12);color:#fff}.side-bottom{position:absolute;bottom:20px;left:16px;right:16px}.logout{width:100%;padding:11px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#fff;border-radius:10px}
-.main{min-width:0}.topbar{height:76px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:5}.topbar h2{margin:0;font-size:20px}.user-pill{display:flex;align-items:center;gap:10px}.avatar{width:38px;height:38px;border-radius:50%;background:var(--mint);display:grid;place-items:center;color:var(--green);font-weight:800}.content{padding:28px;max-width:1400px;margin:auto}.welcome{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:24px}.welcome h1{margin:0 0 5px;font-size:28px}.muted{color:var(--muted)}.grid{display:grid;gap:18px}.cards{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px;box-shadow:var(--shadow)}.stat{display:flex;justify-content:space-between;gap:12px}.stat .icon{width:44px;height:44px;border-radius:13px;background:var(--mint);display:grid;place-items:center;font-size:20px}.stat .value{font-size:25px;font-weight:850;margin-top:8px}.stat .label{font-size:13px;color:var(--muted)}.section-title{display:flex;justify-content:space-between;align-items:center;margin:28px 0 13px}.section-title h3{margin:0}.status{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:800}.ok{background:#e4f4eb;color:#20734b}.late{background:#fde8e8;color:#a83232}.pending{background:#fff4da;color:#986613}.balance{font-size:34px;font-weight:900;color:var(--green)}.progress{height:9px;background:#edf1ef;border-radius:99px;overflow:hidden;margin-top:12px}.progress span{display:block;height:100%;background:var(--green2);width:100%}.info-grid{grid-template-columns:1.25fr .75fr}.row{display:flex;justify-content:space-between;gap:20px;padding:13px 0;border-bottom:1px solid #edf1ef}.row:last-child{border-bottom:0}.row strong{font-weight:750}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:left;padding:13px 12px;border-bottom:1px solid #edf1ef;font-size:13px;white-space:nowrap}.table th{font-size:12px;color:var(--muted);text-transform:uppercase}.btn{border:0;border-radius:10px;padding:9px 12px;font-weight:750}.btn.green{background:var(--green);color:#fff}.btn.light{background:var(--mint);color:var(--green)}.btn.red{background:#fde8e8;color:#a83232}.notice{padding:16px;border:1px solid var(--border);border-radius:14px;margin-bottom:11px}.notice strong{display:block;margin-bottom:5px}.notice small{color:var(--muted)}.toolbar{display:flex;gap:10px;flex-wrap:wrap}.toolbar input,.toolbar select{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:#fff}.admin-kpis{grid-template-columns:repeat(5,minmax(0,1fr))}.empty{padding:40px;text-align:center;color:var(--muted)}
-@media(max-width:1050px){.cards{grid-template-columns:repeat(2,1fr)}.admin-kpis{grid-template-columns:repeat(3,1fr)}.info-grid{grid-template-columns:1fr}}
-@media(max-width:760px){.shell{display:block}.sidebar{height:auto;position:relative;padding:12px}.side-brand{padding-bottom:12px}.nav{display:flex;overflow:auto}.nav button{white-space:nowrap}.side-bottom{position:static;margin-top:10px}.topbar{padding:0 16px}.content{padding:18px}.welcome{display:block}.cards,.admin-kpis{grid-template-columns:1fr 1fr}.topbar h2{font-size:17px}}
-@media(max-width:480px){.cards,.admin-kpis{grid-template-columns:1fr}.login-card{padding:24px}}
-/* Estilos para el sistema de pestañas y registro */
+.container {
+    width: 100%;
+    max-width: 500px;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.header {
+    margin-bottom: 25px;
+}
+
+.logo {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #114232;
+    margin: 0 0 5px 0;
+    font-size: 22px;
+}
+
+p {
+    color: #666;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ==========================================================================
+   2. FORMULARIOS, ENTRADAS DE TEXTO Y PESTAÑAS
+   ========================================================================== */
 .tabs {
     display: flex;
     margin-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 2px solid #eef2f5;
 }
+
 .tab-btn {
     flex: 1;
     background: none;
     border: none;
-    padding: 10px;
+    padding: 12px;
     font-size: 15px;
     cursor: pointer;
-    color: #666;
+    color: #718096;
     font-weight: bold;
+    transition: all 0.2s;
 }
+
 .tab-btn.active {
     color: #114232;
     border-bottom: 3px solid #114232;
 }
+
+.portal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 14px;
+    background-color: #fafafa;
+}
+
+.input-group input:focus {
+    border-color: #114232;
+    outline: none;
+    background-color: #fff;
+}
+
+.btn-primary {
+    background-color: #114232;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background-color: #0d3326;
+}
+
+.demo-box {
+    background-color: #f7fafc;
+    border: 1px dashed #cbd5e0;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #4a5568;
+    line-height: 1.5;
+    text-align: left;
+}
+
 .hidden {
     display: none !important;
 }
-.input-group {
-    margin-bottom: 15px;
-    text-align: left;
-}
-.input-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #333;
-}
-.input-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-}
-/* Estilos del Panel del Propietario */
+
+/* ==========================================================================
+   3. PANEL DE CONTROL (DASHBOARD) GENERAL
+   ========================================================================== */
 .header-dashboard {
     display: flex;
     justify-content: space-between;
@@ -58,125 +151,161 @@
     margin-bottom: 20px;
     text-align: left;
 }
+
 .user-welcome span {
     font-size: 13px;
-    color: #777;
+    color: #718096;
 }
+
 .user-welcome h3 {
     margin: 2px 0 0 0;
     color: #114232;
     font-size: 20px;
 }
+
 .btn-logout {
-    background: #f44336;
+    background: #e53e3e;
     color: white;
     border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
+    padding: 8px 14px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 12px;
     font-weight: bold;
 }
+
+.btn-logout:hover {
+    background: #c53030;
+}
+
 .info-tile {
     background: #f8f9fa;
-    border-left: 4px solid #114232;
-    padding: 12px;
-    border-radius: 6px;
+    border-left: 5px solid #114232;
+    padding: 15px;
+    border-radius: 8px;
     margin-bottom: 15px;
     display: flex;
     flex-direction: column;
     text-align: left;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
-.info-tile.highlight {
-    background: #f0f7f4;
-    border-left-color: #2e7d32;
-}
-.tile-icon {
-    font-size: 20px;
-    margin-bottom: 4px;
-}
-.tile-label {
-    font-size: 11px;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.info-tile strong {
-    font-size: 16px;
-    color: #222;
-    margin-top: 2px;
-}
-.menu-options {
-    margin-top: 25px;
-    text-align: left;
-}
-.menu-options h4 {
-    margin-bottom: 10px;
-    color: #555;
-    font-size: 14px;
-}
-.menu-btn {
-    width: 100%;
-    background: white;
-    border: 1px solid #e0e0e0;
-    padding: 12px;
-    text-align: left;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background 0.2s;
-}
-.menu-btn:hover {
-    background: #f5f5f5;
-}
-/* Color temático azul para la tarjeta de parqueaderos */
+
 .info-tile.alternative {
     background: #f0f4f8;
     border-left-color: #0288d1;
 }
-/* Estilos del Módulo de Administración */
+
+.info-tile.highlight {
+    background: #f0f7f4;
+    border-left-color: #2e7d32;
+}
+
+.tile-icon {
+    font-size: 22px;
+    margin-bottom: 4px;
+}
+
+.tile-label {
+    font-size: 11px;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: bold;
+}
+
+.info-tile strong {
+    font-size: 16px;
+    color: #1a202c;
+    margin-top: 3px;
+}
+
+.menu-options {
+    margin-top: 25px;
+    text-align: left;
+}
+
+.menu-options h4 {
+    margin-bottom: 12px;
+    color: #4a5568;
+    font-size: 14px;
+    border-left: 3px solid #cbd5e0;
+    padding-left: 8px;
+}
+
+.menu-btn {
+    width: 100%;
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 14px;
+    text-align: left;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2d3748;
+    transition: all 0.2s;
+}
+
+.menu-btn:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+/* ==========================================================================
+   4. CONSOLA DE ADMINISTRACIÓN AVANZADA
+   ========================================================================== */
 .admin-stats {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 20px;
 }
+
 .stat-box {
     flex: 1;
     background: #f8f9fa;
-    padding: 12px;
-    border-radius: 6px;
-    border: 1px solid #e0e0e0;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
     text-align: center;
 }
+
 .stat-box.alert-stat {
     background: #fff5f5;
-    border-color: #feb2b2;
+    border-color: #fed7d7;
 }
+
 .stat-num {
     display: block;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     color: #2d3748;
 }
+
 .stat-box.alert-stat .stat-num {
     color: #c53030;
 }
+
 .stat-lbl {
     font-size: 11px;
     color: #718096;
+    margin-top: 2px;
 }
+
 .admin-content h4 {
     text-align: left;
     margin-bottom: 12px;
-    color: #4a5568;
+    color: #2d3748;
+    font-size: 15px;
 }
+
 .table-container {
     width: 100%;
     overflow-x: auto;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid #e2e8f0;
 }
+
 .admin-table {
     width: 100%;
     border-collapse: collapse;
@@ -184,26 +313,48 @@
     text-align: left;
     background: white;
 }
+
 .admin-table th {
     background: #f7fafc;
-    padding: 10px;
+    padding: 12px 10px;
     font-weight: bold;
     color: #4a5568;
     border-bottom: 2px solid #e2e8f0;
 }
+
 .admin-table td {
-    padding: 10px;
+    padding: 12px 10px;
     border-bottom: 1px solid #edf2f7;
-    color: #4a5568;
+    color: #2d3748;
+    vertical-align: middle;
 }
-/* Badges de Estado */
+
+.btn-manage {
+    background: #0288d1;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.btn-manage:hover {
+    background: #01579b;
+}
+
+/* Badges Dinámicos de Estado Financiero */
 .status-badge {
     display: inline-block;
-    padding: 3px 8px;
+    padding: 4px 10px;
     border-radius: 12px;
     font-size: 11px;
     font-weight: bold;
+    margin-top: 5px;
 }
+
 .status-green { background: #c6f6d5; color: #22543d; }
 .status-orange { background: #feebc8; color: #744210; }
 .status-red { background: #fed7d7; color: #742a2a; }
