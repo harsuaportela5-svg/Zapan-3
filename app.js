@@ -1,6 +1,20 @@
 const usuariosPredeterminados = [
-    { documento: "1010101010", contrasena: "1234", nombre: "Carlos Mendoza", casa: "Casa 42 - Manzana B", saldo: "$0 (Al día)" },
-    { documento: "admin", contrasena: "admin123", nombre: "Administración Central", casa: "Oficina Principal", saldo: "N/A" }
+    { 
+        documento: "1010101010", 
+        contrasena: "1234", 
+        nombre: "Carlos Mendoza", 
+        casa: "Casa 42 - Manzana B", 
+        parqueadero: "Parqueadero #42 (Privado) - Vehículo: XYZ-123",
+        saldo: "$0 (Al día)" 
+    },
+    { 
+        documento: "admin", 
+        contrasena: "admin123", 
+        nombre: "Administración Central", 
+        casa: "Oficina Principal", 
+        parqueadero: "Zonas de Visitantes (Control General)",
+        saldo: "N/A" 
+    }
 ];
 
 if (!localStorage.getItem('usuariosPropietarios')) {
@@ -22,8 +36,12 @@ const dashboardCard = document.getElementById('dashboardCard');
 // Elementos del panel de usuario
 const lblNombreUsuario = document.getElementById('lblNombreUsuario');
 const lblInmueble = document.getElementById('lblInmueble');
+const lblParqueadero = document.getElementById('lblParqueadero');
 const lblSaldo = document.getElementById('lblSaldo');
 const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+
+// Variable global para mantener el rastro del usuario logueado en la sesión actual
+let usuarioSesionActiva = null;
 
 // Cambiar de pestañas
 tabLogin?.addEventListener('click', () => {
@@ -40,7 +58,7 @@ tabRegister?.addEventListener('click', () => {
     formLogin.classList.add('hidden');
 });
 
-// Registro de usuarios
+// Registro de usuarios nuevos
 formRegister?.addEventListener('submit', function(e) {
     e.preventDefault();
     const nombre = document.getElementById('regNombre').value.trim();
@@ -55,16 +73,27 @@ formRegister?.addEventListener('submit', function(e) {
         return;
     }
     
-    const nuevoUsuario = { documento, contrasena, nombre, casa, saldo: "$0 (Cuenta Nueva)" };
+    // Asignar un número de parqueadero aleatorio de prueba al registrarse
+    const numParqueaderoAleatorio = Math.floor(Math.random() * 150) + 1;
+    
+    const nuevoUsuario = { 
+        documento, 
+        contrasena, 
+        nombre, 
+        casa, 
+        parqueadero: `Parqueadero #${numParqueaderoAleatorio} (Asignado) - Sin Vehículo`,
+        saldo: "$0 (Cuenta Nueva)" 
+    };
+    
     listaUsuarios.push(nuevoUsuario);
     localStorage.setItem('usuariosPropietarios', JSON.stringify(listaUsuarios));
     
-    alert(`¡Registro Exitoso, ${nombre}! Ya puedes ingresar.`);
+    alert(`¡Registro Exitoso, ${nombre}! Parqueadero asignado temporalmente. Ya puedes ingresar.`);
     formRegister.reset();
     tabLogin.click();
 });
 
-// Inicio de Sesión e inyección de datos en el Panel
+// Inicio de Sesión
 formLogin?.addEventListener('submit', function(e) {
     e.preventDefault();
     const txtDocumento = document.getElementById('txtUsuario').value.trim();
@@ -74,12 +103,9 @@ formLogin?.addEventListener('submit', function(e) {
     const usuarioEncontrado = listaUsuarios.find(u => u.documento === txtDocumento && u.contrasena === txtContrasena);
     
     if (usuarioEncontrado) {
-        // 1. Inyectar datos dinámicos en el HTML
-        lblNombreUsuario.textContent = usuarioEncontrado.nombre;
-        lblInmueble.textContent = usuarioEncontrado.casa;
-        lblSaldo.textContent = usuarioEncontrado.saldo;
+        usuarioSesionActiva = usuarioEncontrado;
+        actualizarInterfazDashboard();
         
-        // 2. Ocultar Login y Mostrar Panel
         authCard.classList.add('hidden');
         dashboardCard.classList.remove('hidden');
         formLogin.reset();
@@ -88,8 +114,44 @@ formLogin?.addEventListener('submit', function(e) {
     }
 });
 
+// Función para refrescar los textos en pantalla
+function actualizarInterfazDashboard() {
+    if (usuarioSesionActiva) {
+        lblNombreUsuario.textContent = usuarioSesionActiva.nombre;
+        lblInmueble.textContent = usuarioSesionActiva.casa;
+        lblParqueadero.textContent = usuarioSesionActiva.parqueadero;
+        lblSaldo.textContent = usuarioSesionActiva.saldo;
+    }
+}
+
+// Simulación de Registro de Vehículo desde el panel
+window.registrarVehiculoSimulado = function() {
+    const placa = prompt("Ingrese la placa del vehículo a registrar (Ej: ABC123):");
+    if (!placa) return;
+    
+    let listaUsuarios = obtenerUsuarios();
+    // Encontrar al usuario en la base de datos real del LocalStorage
+    const index = listaUsuarios.findIndex(u => u.documento === usuarioSesionActiva.documento);
+    
+    if (index !== -1) {
+        // Extraer solo la parte del número del parqueadero original
+        const parteParqueadero = listaUsuarios[index].parqueadero.split(" - ")[0];
+        listaUsuarios[index].parqueadero = `${parteParqueadero} - Vehículo: ${placa.toUpperCase()}`;
+        
+        // Guardar cambios en el almacenamiento del navegador
+        localStorage.setItem('usuariosPropietarios', JSON.stringify(listaUsuarios));
+        
+        // Actualizar la sesión activa y la pantalla
+        usuarioSesionActiva = listaUsuarios[index];
+        actualizarInterfazDashboard();
+        
+        alert("¡Vehículo autorizado y registrado exitosamente en su parqueadero!");
+    }
+};
+
 // Cerrar Sesión
 btnCerrarSesion?.addEventListener('click', () => {
+    usuarioSesionActiva = null;
     dashboardCard.classList.add('hidden');
     authCard.classList.remove('hidden');
 });
