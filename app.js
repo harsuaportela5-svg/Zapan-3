@@ -1,8 +1,16 @@
-// ==========================================
-// 📦 BLOQUE 1: CONFIGURACIÓN E INICIALIZACIÓN
-// ==========================================
+// ==========================================================================
+// 📦 BLOQUE 1: CONFIGURACIÓN, PERSISTENCIA E INICIALIZACIÓN LIMPIA
+// ==========================================================================
 const deFabrica = [
-    { documento: "admin", contrasena: "admin123", nombre: "Administración Central", casa: "Oficina Principal", parqueadero: "Zonas de Visitantes", saldo: "N/A", primerIngreso: false }
+    { 
+        documento: "admin", 
+        contrasena: "admin123", 
+        nombre: "Administración Central", 
+        casa: "Oficina Principal", 
+        parqueadero: "Zonas de Visitantes", 
+        saldo: "N/A", 
+        primerIngreso: false 
+    }
 ];
 
 if (!localStorage.getItem('usuariosPropietarios')) {
@@ -11,9 +19,9 @@ if (!localStorage.getItem('usuariosPropietarios')) {
 
 const getUsers = () => JSON.parse(localStorage.getItem('usuariosPropietarios')) || deFabrica;
 const saveUsers = (data) => localStorage.setItem('usuariosPropietarios', JSON.stringify(data));
-// ==========================================
+// ==========================================================================
 // 🎛️ BLOQUE 2: VÍNCULOS DEL DOM Y PESTAÑAS
-// ==========================================
+// ==========================================================================
 const tabLogin = document.getElementById('tabLogin'), 
       tabRegister = document.getElementById('tabRegister'), 
       formLogin = document.getElementById('formLogin'), 
@@ -53,9 +61,9 @@ tabAdminParqueaderos?.addEventListener('click', () => { tabAdminParqueaderos.cla
 
 thOrdenarCasa?.addEventListener('click', () => { criterioOrden = "casa"; renderAdmin(); });
 thOrdenarSaldo?.addEventListener('click', () => { criterioOrden = "mora"; renderAdmin(); });
-// ==========================================
+// ==========================================================================
 // 🔐 BLOQUE 3: REGISTRO, LOGIN Y HABEAS DATA
-// ==========================================
+// ==========================================================================
 formRegister?.addEventListener('submit', (e) => {
     e.preventDefault();
     const nombre = document.getElementById('regNombre').value.trim(), 
@@ -138,9 +146,9 @@ function irAlDashboard(usuario) {
         dashboardCard.classList.remove('hidden'); 
     }
 }
-// ==========================================
-// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL
-// ==========================================
+// ==========================================================================
+// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL CORREGIDO DEFINITIVO
+// ==========================================================================
 const renderUser = () => {
     if (!sesion) return;
     lblNombreUsuario.textContent = sesion.nombre; 
@@ -212,14 +220,15 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
         return alert("⚠️ Por favor, seleccione primero el archivo de Excel en la sección superior.");
     }
 
-    const archivoSeleccionado = fileInput.files[0]; // Captura limpia del primer archivo adjunto en búfer
+    // ⭐ CORRECCIÓN TÉCNICA DEFINITIVA: Se extrae el archivo único indexado en la posición cero [0] para el FileReader
+    const archivoUnico = fileInput.files[0]; 
     const lector = new FileReader();
 
     lector.onload = function(e) {
         try {
             const datosArrayBuffer = e.target.result;
             const workbook = XLSX.read(datosArrayBuffer, { type: 'array' });
-            const nombreHoja = workbook.SheetNames[0]; // Extrae la primera pestaña de datos válida
+            const nombreHoja = workbook.SheetNames[0]; // Captura segura de la primera pestaña de datos indexada en [0]
             const hojaContenido = workbook.Sheets[nombreHoja];
             const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
 
@@ -284,7 +293,7 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
         }
     };
 
-    lector.readAsArrayBuffer(archivoSeleccionado); // Forzar la lectura en matriz de bytes pura para .xlsx nativo
+    lector.readAsArrayBuffer(archivoUnico); 
 });
 
 window.ejecutarSincronizacionSisco = function() {
