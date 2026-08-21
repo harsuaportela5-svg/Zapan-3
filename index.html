@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bosques de Zapan 3</title>
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- 📦 LIBRERÍA DE EXCEL POSICIONADA EN EL HEAD PARA CARGA PRIORITARIA E INMEDIATA -->
+    <script src="https://jsdelivr.net"></script>
 </head>
 <body>
 <div class="container">
@@ -140,7 +143,6 @@
             </div>
 
             <div class="integration-actions">
-                <!-- SE CONSERVAN LOS IDS LIMPIOS SIN ONCLICK PARA EVITAR ERRORES -->
                 <button id="btnProcesarExcel" class="btn-excel-sim" style="width: 100%; margin-bottom: 5px; background: #2e7d32; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">
                     📥 Cargar y Crear Usuarios desde Excel
                 </button>
@@ -150,7 +152,7 @@
             </div>
             
             <p class="integration-note" style="margin-top: 8px; font-size: 11px; color: #666;">
-                Sube tu archivo de Excel. El sistema extraerá los propietarios, creará sus cuentas con la contraseña temporal por defecto y los listará abajo [format-organize-outputs].
+                Sube tu archivo de Excel. El sistema extraerá los propietarios, creará sus cuentas con la contraseña temporal por defecto y los listará abajo.
             </p>
         </div>
 
@@ -188,9 +190,7 @@
 
 </div>
 
-<!-- 📦 LIBRERÍA EXTERNA PARA LEER ARCHIVOS EXCEL DIRECTAMENTE EN EL NAVEGADOR -->
-<script src="https://jsdelivr.net"></script>
-<!-- ⚡ CACHE BUSTING CONFIGURADO: SE FUERZA AL SERVIDOR A LEER EL SCRIPT NUEVO -->
-<script src="app.js?v=4.0"></script>
+<!-- ⚡ CACHE BUSTING ACTUALIZADO: OBLIGA A CARGAR EL SCRIPT COMPLEMENTARIO NUEVO -->
+<script src="app.js?v=5.0"></script>
 </body>
 </html>
