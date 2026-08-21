@@ -33,7 +33,7 @@
             <button type="submit" class="btn-primary">Ingresar al portal</button>
             <div class="demo-box">
                 <strong>Modo demostración</strong><br>
-                Propietario: Ingrese el número de casa (ej: 1 o 2) después de subir el Excel.<br>
+                Propietario: Ingrese el USUARIO del Excel (ej: CASA2) y clave (ZAPAN3) tras subirlo.<br>
                 Administración: admin / admin123
             </div>
         </form>
@@ -65,7 +65,7 @@
             <div class="reset-logo">⚠️</div>
             <h2>Primer Ingreso Detectado</h2>
             <p style="color: #666; font-size: 0.9em; padding: 0 10px; margin-top: 5px;">
-                Por políticas de seguridad y la Ley de Habeas Data, debe cambiar la contraseña genérica asignada por el archivo Excel antes de continuar [format-organize-outputs].
+                Por políticas de seguridad y la Ley de Habeas Data, debe cambiar la contraseña genérica asignada por el archivo Excel antes de continuar.
             </p>
         </div>
         <form id="formPasswordReset" class="portal-form">
@@ -102,7 +102,7 @@
         </div>
         <div class="receipt-box">
             <h4>📄 Estado de Cuenta a la Fecha</h4>
-            <div class="receipt-row"><span>Administración Base:</span><strong>$180.000</strong></div>
+            <div class="receipt-row"><span>Administración Base:</span>magic:strong>$180.000</strong></div>
             <div class="receipt-row"><span>Cobro Parqueadero:</span><strong id="recParqExtra">$0</strong></div>
             <div class="receipt-row total-row"><span>TOTAL MES ACTUAL:</span><strong id="recTotalMes">$180.000</strong></div>
             <div class="receipt-row balance-row"><span>ESTADO CARTERA:</span><span id="lblSaldoBadge" class="status-badge">...</span></div>
@@ -149,7 +149,7 @@
             </div>
             
             <p class="integration-note">
-                Sube tu archivo de Excel. El sistema extraerá los propietarios, creará sus cuentas con la contraseña temporal por defecto y los listará abajo [format-organize-outputs].
+                Sube tu archivo de Excel. El sistema extraerá los propietarios, creará sus cuentas con la contraseña temporal por defecto y los listará abajo.
             </p>
         </div>
 
@@ -189,6 +189,7 @@
 
 <!-- 📦 LIBRERÍA EXTERNA PARA LEER ARCHIVOS EXCEL DIRECTAMENTE EN EL NAVEGADOR -->
 <script src="https://jsdelivr.net"></script>
-<script src="app.js"></script>
+<!-- ⚡ CACHE BUSTING ACTIVADO: OBLIGA A RENDER A CARGAR LA NUEVA VERSÓN SIN ERRORES -->
+<script src="app.js?v=3.0"></script>
 </body>
 </html>
