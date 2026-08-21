@@ -5,35 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bosques de Zapan 3 - Administración</title>
     
-    <!-- 📦 Inyección de la librería SheetJS para la lectura binaria de hojas Excel -->
-    <script src="https://jsdelivr.net"></script>
-    
-    <!-- Enlace a los estilos de diseño externos -->
-    <link rel="stylesheet" href="styles.css">
+    <!-- 📦 Servidor alternativo de respaldo para la librería de Excel (Evita el error de Timed Out) -->
+    <script src="https://cloudflare.com"></script>
+
+    <!-- 🎨 DISEÑO INTEGRADO (Soluciona problemas de carga de diseño) -->
+    <style>
+        :root {
+            --primary: #0275d8;
+            --success: #1e7e34;
+            --danger: #dc3545;
+            --dark: #212529;
+            --bg-dark: #1e1e1e;
+            --card-bg: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: var(--card-bg);
+            color: #333333;
+            border-radius: 8px;
+            padding: 30px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .header-admin {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eeeeee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header-admin h2 { margin: 0; font-size: 24px; color: var(--dark); }
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 20px; }
+        .tab { padding: 10px 20px; cursor: pointer; border: 1px solid transparent; margin-bottom: -1px; font-weight: 500; color: #555; }
+        .tab.active { border: 1px solid #ddd; border-bottom-color: #fff; border-radius: 4px 4px 0 0; color: var(--primary); font-weight: bold; }
+        .modulo-carga { border: 2px dashed #0275d8; border-radius: 6px; padding: 25px; text-align: center; background-color: #f8f9fa; margin-bottom: 20px; }
+        .modulo-carga h3 { margin-top: 0; font-size: 14px; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .file-input-wrapper { margin: 20px 0; font-size: 13px; font-weight: bold; color: #555; }
+        .file-input-wrapper input { margin-top: 10px; }
+        .btn-block { width: 100%; padding: 12px; border: none; border-radius: 4px; font-weight: bold; font-size: 14px; cursor: pointer; margin-bottom: 12px; color: white; }
+        .btn-success { background-color: var(--success); }
+        .btn-primary { background-color: var(--primary); }
+        .instrucciones { font-size: 11px; color: #6c757d; line-height: 1.5; margin-top: 15px; }
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body>
 
     <div class="container">
         <div id="adminCard">
-            <!-- Bloque de Cabecera -->
             <div class="header-admin">
                 <h2>Administración Central</h2>
                 <button class="btn-danger" id="btnCerrarSesionAdmin">Salir</button>
             </div>
 
-            <!-- Navegación interna por pestañas -->
             <div class="tabs">
                 <div class="tab active" id="tabAdminCartera">📊 Cartera</div>
                 <div class="tab" id="tabAdminParqueaderos">🚗 Parqueaderos</div>
             </div>
 
-            <!-- Panel de Carga e Integración Automatizada -->
             <div id="secAdminCartera">
                 <div class="modulo-carga">
                     <h3>⚡ Módulo de Integración y Carga Automatizada</h3>
                     
                     <div class="file-input-wrapper">
-                        <label for="archivoExcel">1. SELECCIONAR BASE DE DATOS DE PRUEBA (EXCEL)</label>
+                        <label for="archivoExcel">1. SELECCIONAR BASE DE DATOS DE PRUEBA (EXCEL)</label><br>
                         <input type="file" id="archivoExcel" accept=".xlsx, .xls">
                     </div>
 
@@ -46,14 +102,89 @@
                 </div>
             </div>
             
-            <!-- Panel de Gestión de Parqueaderos -->
             <div id="secAdminParqueaderos" class="hidden">
-                <p class="txt-mute">Módulo de control de parqueaderos activo de forma correcta.</p>
+                <p style="text-align: center; color: #777; padding: 20px;">Módulo de control de parqueaderos activo de forma correcta.</p>
             </div>
         </div>
     </div>
 
-    <!-- Enlace de comunicación con el archivo de funciones JavaScript -->
-    <script src="script.js"></script>
+    <!-- ⚙️ LÓGICA DE PROGRAMACIÓN INTEGRADA (Evita el bloqueo de seguridad MIME de Render) -->
+    <script>
+        const cuentaAdministrador = [{ documento: "admin", contrasena: "admin123", nombre: "Administración Central", casa: "Oficina Principal", parqueadero: "Zonas de Visitantes", saldo: "N/A", primerIngreso: false }];
+
+        if (!localStorage.getItem('usuariosPropietarios')) {
+            localStorage.setItem('usuariosPropietarios', JSON.stringify(cuentaAdministrador));
+        }
+
+        const obtenerUsuarios = () => JSON.parse(localStorage.getItem('usuariosPropietarios')) || cuentaAdministrador;
+        const guardarUsuarios = (datos) => localStorage.setItem('usuariosPropietarios', JSON.stringify(datos));
+
+        const tabAdminCartera = document.getElementById('tabAdminCartera'), 
+              tabAdminParqueaderos = document.getElementById('tabAdminParqueaderos'), 
+              secAdminCartera = document.getElementById('secAdminCartera'), 
+              secAdminParqueaderos = document.getElementById('secAdminParqueaderos'),
+              btnCargarExcel = document.getElementById('btnProcesarExcel'),
+              inputExcel = document.getElementById('archivoExcel');
+
+        tabAdminCartera?.addEventListener('click', () => { 
+            tabAdminCartera.classList.add('active'); tabAdminParqueaderos.classList.remove('active'); 
+            secAdminCartera.classList.remove('hidden'); secAdminParqueaderos.classList.add('hidden'); 
+        });
+
+        tabAdminParqueaderos?.addEventListener('click', () => { 
+            tabAdminParqueaderos.classList.add('active'); tabAdminCartera.classList.remove('active'); 
+            secAdminParqueaderos.classList.remove('hidden'); secAdminCartera.classList.add('hidden'); 
+        });
+
+        btnCargarExcel?.addEventListener('click', () => {
+            const archivosSeleccionados = inputExcel?.files;
+            if (!archivosSeleccionados || archivosSeleccionados.length === 0) {
+                return alert("Por favor, selecciona primero tu archivo corregido 'usuarios_limpios.xlsx'.");
+            }
+
+            const lectorArchivo = new FileReader();
+            lectorArchivo.onload = (evento) => {
+                try {
+                    const bufferBinario = new Uint8Array(evento.target.result);
+                    const libroExcel = XLSX.read(bufferBinario, { type: 'array' });
+                    const contenidoHoja = libroExcel.Sheets[libroExcel.SheetNames[0]];
+                    const registrosJson = XLSX.utils.sheet_to_json(contenidoHoja);
+
+                    if (registrosJson.length === 0) return alert("Error: El archivo no contiene datos válidos.");
+
+                    let baseDatosUsuarios = obtenerUsuarios();
+                    let contador = 0;
+                    
+                    registrosJson.forEach(columna => {
+                        const documentoId = String(columna['ID USUARIO'] || columna['id_usuario'] || columna['Cedula'] || '').trim();
+                        const nombrePropietario = String(columna['Propietario'] || columna['propietario'] || '').trim();
+                        const numeroCasa = String(columna['Casa'] || columna['casa'] || '').trim();
+
+                        if (documentoId && nombrePropietario) {
+                            if (!baseDatosUsuarios.some(u => u.documento === documentoId)) {
+                                baseDatosUsuarios.push({
+                                    documento: documentoId,
+                                    contrasena: 'ZAPAN3',
+                                    nombre: nombrePropietario,
+                                    casa: "Casa " + numeroCasa,
+                                    parqueadero: "Sin parqueadero asignado",
+                                    saldo: "$0 (Al día)",
+                                    primerIngreso: true
+                                });
+                                contador++;
+                            }
+                        }
+                    });
+
+                    guardarUsuarios(baseDatosUsuarios);
+                    alert(`¡Carga Exitosa! Propietarios nuevos registrados: ${contador}`);
+                    
+                } catch (error) {
+                    alert("Ocurrió un error leyendo el archivo binario. Verifique el formato.");
+                }
+            };
+            lectorArchivo.readAsArrayBuffer(archivosSeleccionados[0]);
+        });
+    </script>
 </body>
 </html>
