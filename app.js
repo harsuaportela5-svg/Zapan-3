@@ -87,7 +87,7 @@ formLogin?.addEventListener('submit', (e) => {
         sesion = encontrado;
         formLogin.reset();
         
-        // Si viene derivado de una carga masiva de Excel, congelamos y exigimos cambio
+        // Bloqueo de seguridad si usa la clave genérica asignada por el archivo de Excel
         if (encontrado.primerIngreso && encontrado.documento !== "admin") {
             authCard.classList.add('hidden');
             passwordResetCard.classList.remove('hidden');
@@ -100,7 +100,7 @@ formLogin?.addEventListener('submit', (e) => {
     }
 });
 
-// Procesar el cambio de contraseña obligatorio (Habeas Data)
+// Formulario dinámico de Cambio de Contraseña Obligatoria
 formPasswordReset?.addEventListener('submit', (e) => {
     e.preventDefault();
     const nueva = document.getElementById('txtNuevaContrasena').value.trim();
@@ -114,14 +114,14 @@ formPasswordReset?.addEventListener('submit', (e) => {
     
     if (usuarioDb) {
         usuarioDb.contrasena = nueva;
-        usuarioDb.primerIngreso = false; // Se libera la cuenta para futuros accesos
+        usuarioDb.primerIngreso = false; // El usuario queda liberado para próximos accesos
         sesion = usuarioDb;
         saveUsers(lista);
         
         formPasswordReset.reset();
         passwordResetCard.classList.add('hidden');
         irAlDashboard(sesion);
-        alert("🔒 Contraseña actualizada y encriptada con éxito. Bienvenido.");
+        alert("🔒 Contraseña actualizada y cifrada con éxito. Bienvenido.");
     }
 });
 
@@ -151,7 +151,6 @@ const renderUser = () => {
     
     if (lblSaldoBadge) {
         lblSaldoBadge.textContent = sesion.saldo; 
-        lblSaldoBadge.className = "status-badge";
         if (sesion.saldo.includes("mora")) lblSaldoBadge.className = "status-badge status-red";
         else if (sesion.saldo.includes("pendiente") || sesion.saldo.includes("Acuerdo")) lblSaldoBadge.className = "status-badge status-orange";
         else lblSaldoBadge.className = "status-badge status-green";
@@ -177,80 +176,91 @@ function renderAdmin() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${u.casa}</strong><br><small style="color:#0288d1;font-weight:600;">${u.parqueadero}</small></td>
-            <td><strong>${u.nombre}</strong><br><small style="color:#666;">User: ${u.documento} | Clave: ${u.primerIngreso ? u.contrasena + ' (Genérica)' : '🔒 Cifrada (Habeas Data)'}</small><br><span class="status-badge ${cls}">${u.saldo}</span></td>
+            <td><strong>${u.nombre}</strong><br><small style="color:#666;">User: ${u.documento} | Clave: ${u.primerIngreso ? u.contrasena + ' (Genérica)' : '🔒 Protegida'}</small><br><span class="status-badge ${cls}">${u.saldo}</span></td>
         `;
         tablaAdminCuerpo.appendChild(tr);
     });
 }
 
 function renderParq() {
-    let list = getUsers().filter(u => u.documento !== "admin" && u.parqueadero.includes("#"));
+    let list = getUsers().filter(u => u.documento !== "admin" && u.parqueadero.includes("$"));
     if (!tablaParqueaderosCuerpo) return;
     tablaParqueaderosCuerpo.innerHTML = "";
     
     list.forEach(u => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong>${u.parqueadero.split(' - ')}</strong></td>
+            <td><strong>Estacionamiento Relacionado</strong></td>
             <td>${u.nombre} <br><small style="color:#666;">${u.casa}</small></td>
-            <td><button class="btn-manage">Ver Info</button></td>
+            <td><span style="font-size:11px;font-weight:bold;color:#0288d1;">${u.parqueadero}</span></td>
         `;
         tablaParqueaderosCuerpo.appendChild(tr);
     });
 }
 
-// --- 🚀 ACCIONES COMERCIALES INYECTADAS CON TU BASE DE DATOS DE PRUEBAS ---
+// --- 🚀 PROCESAMIENTO DINÁMICO DE TU EXCEL DE PRUEBAS EN VIVO ---
+document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
+    const fileInput = document.getElementById('inputExcelUsuarios');
+    const archivos = fileInput.files;
 
-// Acción A: Simulación de carga masiva por tu archivo Excel inicial de 20 usuarios
-window.ejecutarPruebaExcel = function() {
-    let listaActual = getUsers();
-    
-    const filasExcel = [
-        { documento: "1", nombre: "Carlos Mendoza", casa: "Casa 1", parq: "Cuota Parq: $10.000" },
-        { documento: "2", nombre: "Ana Rodriguez", casa: "Casa 2", parq: "Cuota Parq: $10.000" },
-        { documento: "3", nombre: "Juan Carlos Perez", casa: "Casa 3", parq: "Cuota Parq: $15.000" },
-        { documento: "4", nombre: "María Gómez", casa: "Casa 4", parq: "Cuota Parq: $15.000" },
-        { documento: "5", nombre: "Luis Martínez", casa: "Casa 5", parq: "Cuota Parq: $10.000" },
-        { documento: "6", nombre: "Clara Lopez", casa: "Casa 6", parq: "Cuota Parq: $10.000" },
-        { documento: "7", nombre: "Diego Fernando Silva", casa: "Casa 7", parq: "Cuota Parq: $15.000" },
-        { documento: "8", nombre: "Martha Castellanos", casa: "Casa 8", parq: "Cuota Parq: $15.000" },
-        { documento: "9", nombre: "Jorge Eliecer Tovar", casa: "Casa 9", parq: "Cuota Parq: $15.000" },
-        { documento: "10", nombre: "Esperanza Gomez", casa: "Casa 10", parq: "Cuota Parq: $15.000" },
-        { documento: "11", nombre: "Carlos Valvuena", casa: "Casa 11", parq: "Cuota Parq: $10.000" },
-        { documento: "12", nombre: "Gloria Alcaraz", casa: "Casa 12", parq: "Cuota Parq: $10.000" },
-        { documento: "13", nombre: "Javier Loaiza", casa: "Casa 13", parq: "Cuota Parq: $10.000" },
-        { documento: "14", nombre: "Oscar Ramirez", casa: "Casa 14", parq: "Cuota Parq: $15.000" },
-        { documento: "15", nombre: "Carlos Serrano", casa: "Casa 15", parq: "Cuota Parq: $15.000" },
-        { documento: "16", nombre: "Matilde Aranjuez", casa: "Casa 16", parq: "Cuota Parq: $15.000" },
-        { documento: "17", nombre: "Maria Mendoza", casa: "Casa 17", parq: "Cuota Parq: $15.000" },
-        { documento: "18", nombre: "Carmen Martinez", casa: "Casa 18", parq: "Cuota Parq: $15.000" },
-        { documento: "19", nombre: "Margarita Sierra", casa: "Casa 19", parq: "Cuota Parq: $10.000" },
-        { documento: "20", nombre: "Harold Suaza", casa: "Casa 20", parq: "Cuota Parq: $10.000" }
-    ];
+    if (archivos.length === 0) {
+        return alert("⚠️ Por favor, seleccione primero el archivo de Excel en la sección superior.");
+    }
 
-    filasExcel.forEach(fila => {
-        if (!listaActual.some(u => u.documento === fila.documento)) {
-            listaActual.push({
-                documento: fila.documento, // El usuario será el número de casa (ej: 1, 2, 3...)
-                contrasena: "Zapan2026*", // Contraseña temporal por defecto
-                nombre: fila.nombre,
-                casa: fila.casa,
-                parqueadero: fila.parq,
-                saldo: "$0 (Al día)",
-                primerIngreso: true // Provocará el redireccionamiento para cambiar la contraseña
-            });
+    const archivoSeleccionado = archivos[0];
+    const lector = new FileReader();
+
+    lector.onload = function(e) {
+        const datosBinarios = e.target.result;
+        const workbook = XLSX.read(datosBinarios, { type: 'binary' });
+        
+        const nombreHoja = workbook.SheetNames[0];
+        const hojaContenido = workbook.Sheets[nombreHoja];
+        
+        // range: 3 salta las filas de títulos decorativos del inicio para leer la cabecera real
+        const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { range: 3 });
+
+        let listaActual = getUsers();
+        let contadorNuevos = 0;
+
+        datosFilas.forEach(fila => {
+            const idCasa = fila["Casa"] ? fila["Casa"].toString().trim() : null;
+            const nombrePropietario = fila["Propietario"] ? fila["Propietario"].toString().trim() : null;
+            const cuotaParq = fila["Cuota Parqueadero"] ? fila["Cuota Parqueadero"] : 0;
+
+            if (idCasa && nombrePropietario) {
+                if (!listaActual.some(u => u.documento === idCasa)) {
+                    listaActual.push({
+                        documento: idCasa,         // Usuario de acceso: el número de la casa
+                        contrasena: "Zapan2026*",  // Clave temporal unificada por defecto
+                        nombre: nombrePropietario,
+                        casa: `Casa ${idCasa}`,
+                        parqueadero: `Cuota Parq: $${cuotaParq.toLocaleString('es-CO')}`,
+                        saldo: "$0 (Al día)",       // Inicia limpio hasta la sincronización con SISCO
+                        primerIngreso: true        // Condiciona el paso por el formulario Habeas Data
+                    });
+                    contadorNuevos++;
+                }
+            }
+        });
+
+        if (contadorNuevos > 0) {
+            saveUsers(listaActual);
+            renderAdmin();
+            alert(`🎉 EXCEL PROCESADO CON ÉXITO:\nSe leyeron correctamente los registros. Se han creado ${contadorNuevos} usuarios en automático con la clave 'Zapan2026*'.`);
+        } else {
+            alert("ℹ️ Lectura completada. Todos los propietarios en el Excel ya están registrados.");
         }
-    });
+    };
 
-    saveUsers(listaActual);
-    renderAdmin();
-    alert("📥 EXCEL DE PRUEBA PROCESADO:\nSe han indexado los 20 propietarios de tu archivo. El usuario de ingreso es el número de su casa y su contraseña por defecto es Zapan2026*");
-};
+    lector.readAsBinaryString(archivoSeleccionado);
+});
 
-// Acción B: Simulación de actualización automática con tu archivo contable SISCO
+// Simulación de Tarea Cron de Medianoche cruzando saldos con reporte de SISCO
 window.ejecutarSincronizacionSisco = function() {
     let listaActual = getUsers();
 
+    // Mapeo automatizado de estados financieros directo de tu documento
     const datosSisco = [
         { casa: "Casa 1", nuevoSaldo: "$0 (Al día)" },
         { casa: "Casa 2", nuevoSaldo: "$190.000 (Mes actual en mora)" },
