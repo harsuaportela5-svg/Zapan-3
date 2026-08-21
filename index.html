@@ -102,7 +102,7 @@
         </div>
         <div class="receipt-box">
             <h4>📄 Estado de Cuenta a la Fecha</h4>
-            <div class="receipt-row"><span>Administración Base:</span>magic:strong>$180.000</strong></div>
+            <div class="receipt-row"><span>Administración Base:</span><strong>$180.000</strong></div>
             <div class="receipt-row"><span>Cobro Parqueadero:</span><strong id="recParqExtra">$0</strong></div>
             <div class="receipt-row total-row"><span>TOTAL MES ACTUAL:</span><strong id="recTotalMes">$180.000</strong></div>
             <div class="receipt-row balance-row"><span>ESTADO CARTERA:</span><span id="lblSaldoBadge" class="status-badge">...</span></div>
@@ -140,16 +140,17 @@
             </div>
 
             <div class="integration-actions">
-                <button id="btnProcesarExcel" class="btn-excel-sim" style="width: 100%; margin-bottom: 5px;">
+                <!-- SE CONSERVAN LOS IDS LIMPIOS SIN ONCLICK PARA EVITAR ERRORES -->
+                <button id="btnProcesarExcel" class="btn-excel-sim" style="width: 100%; margin-bottom: 5px; background: #2e7d32; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">
                     📥 Cargar y Crear Usuarios desde Excel
                 </button>
-                <button onclick="ejecutarSincronizacionSisco()" class="btn-sisco-sim" style="width: 100%;">
+                <button id="btnSincronizarSisco" class="btn-sisco-sim" style="width: 100%; background: #0288d1; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">
                     🔄 Simular Sincronización SISCO (00:00 AM)
                 </button>
             </div>
             
-            <p class="integration-note">
-                Sube tu archivo de Excel. El sistema extraerá los propietarios, creará sus cuentas con la contraseña temporal por defecto y los listará abajo.
+            <p class="integration-note" style="margin-top: 8px; font-size: 11px; color: #666;">
+                Sube tu archivo de Excel. El sistema extraerá los propietarios, creará sus cuentas con la contraseña temporal por defecto y los listará abajo [format-organize-outputs].
             </p>
         </div>
 
@@ -189,7 +190,7 @@
 
 <!-- 📦 LIBRERÍA EXTERNA PARA LEER ARCHIVOS EXCEL DIRECTAMENTE EN EL NAVEGADOR -->
 <script src="https://jsdelivr.net"></script>
-<!-- ⚡ CACHE BUSTING ACTIVADO: OBLIGA A RENDER A CARGAR LA NUEVA VERSÓN SIN ERRORES -->
-<script src="app.js?v=3.0"></script>
+<!-- ⚡ CACHE BUSTING CONFIGURADO: SE FUERZA AL SERVIDOR A LEER EL SCRIPT NUEVO -->
+<script src="app.js?v=4.0"></script>
 </body>
 </html>
