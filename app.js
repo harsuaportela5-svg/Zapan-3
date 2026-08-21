@@ -114,7 +114,7 @@ formPasswordReset?.addEventListener('submit', (e) => {
     
     if (usuarioDb) {
         usuarioDb.contrasena = nueva;
-        usuarioDb.primerIngreso = false; // Se libera la cuenta
+        usuarioDb.primerIngreso = false; // Se libera la cuenta para futuros accesos
         sesion = usuarioDb;
         saveUsers(lista);
         
@@ -199,56 +199,91 @@ function renderParq() {
     });
 }
 
-// --- 🚀 ACCIONES COMERCIALES INYECTADAS (BOTONES DEL PANEL) ---
+// --- 🚀 ACCIONES COMERCIALES INYECTADAS CON TU BASE DE DATOS DE PRUEBAS ---
 
-// Acción A: Simulación de carga masiva por archivo Excel inicial
+// Acción A: Simulación de carga masiva por tu archivo Excel inicial de 20 usuarios
 window.ejecutarPruebaExcel = function() {
     let listaActual = getUsers();
     
     const filasExcel = [
-        { documento: "1099888777", nombre: "Ximena Suárez", casa: "Casa 34 - Manzana C", parqueadero: "Parqueadero #34 (Privado) - 🚗 Vehículo: JKM-990" },
-        { documento: "51888999", nombre: "Alfonso Quintero", casa: "Casa 80 - Manzana D", parqueadero: "Sin parqueadero asignado" }
+        { documento: "1", nombre: "Carlos Mendoza", casa: "Casa 1", parq: "Cuota Parq: $10.000" },
+        { documento: "2", nombre: "Ana Rodriguez", casa: "Casa 2", parq: "Cuota Parq: $10.000" },
+        { documento: "3", nombre: "Juan Carlos Perez", casa: "Casa 3", parq: "Cuota Parq: $15.000" },
+        { documento: "4", nombre: "María Gómez", casa: "Casa 4", parq: "Cuota Parq: $15.000" },
+        { documento: "5", nombre: "Luis Martínez", casa: "Casa 5", parq: "Cuota Parq: $10.000" },
+        { documento: "6", nombre: "Clara Lopez", casa: "Casa 6", parq: "Cuota Parq: $10.000" },
+        { documento: "7", nombre: "Diego Fernando Silva", casa: "Casa 7", parq: "Cuota Parq: $15.000" },
+        { documento: "8", nombre: "Martha Castellanos", casa: "Casa 8", parq: "Cuota Parq: $15.000" },
+        { documento: "9", nombre: "Jorge Eliecer Tovar", casa: "Casa 9", parq: "Cuota Parq: $15.000" },
+        { documento: "10", nombre: "Esperanza Gomez", casa: "Casa 10", parq: "Cuota Parq: $15.000" },
+        { documento: "11", nombre: "Carlos Valvuena", casa: "Casa 11", parq: "Cuota Parq: $10.000" },
+        { documento: "12", nombre: "Gloria Alcaraz", casa: "Casa 12", parq: "Cuota Parq: $10.000" },
+        { documento: "13", nombre: "Javier Loaiza", casa: "Casa 13", parq: "Cuota Parq: $10.000" },
+        { documento: "14", nombre: "Oscar Ramirez", casa: "Casa 14", parq: "Cuota Parq: $15.000" },
+        { documento: "15", nombre: "Carlos Serrano", casa: "Casa 15", parq: "Cuota Parq: $15.000" },
+        { documento: "16", nombre: "Matilde Aranjuez", casa: "Casa 16", parq: "Cuota Parq: $15.000" },
+        { documento: "17", nombre: "Maria Mendoza", casa: "Casa 17", parq: "Cuota Parq: $15.000" },
+        { documento: "18", nombre: "Carmen Martinez", casa: "Casa 18", parq: "Cuota Parq: $15.000" },
+        { documento: "19", nombre: "Margarita Sierra", casa: "Casa 19", parq: "Cuota Parq: $10.000" },
+        { documento: "20", nombre: "Harold Suaza", casa: "Casa 20", parq: "Cuota Parq: $10.000" }
     ];
 
     filasExcel.forEach(fila => {
         if (!listaActual.some(u => u.documento === fila.documento)) {
             listaActual.push({
-                documento: fila.documento,
-                contrasena: "Zapan2026*", // Clave temporal unificada por defecto
+                documento: fila.documento, // El usuario será el número de casa (ej: 1, 2, 3...)
+                contrasena: "Zapan2026*", // Contraseña temporal por defecto
                 nombre: fila.nombre,
                 casa: fila.casa,
-                parqueadero: fila.parqueadero,
+                parqueadero: fila.parq,
                 saldo: "$0 (Al día)",
-                primerIngreso: true // Forzará el paso por el cambio obligatorio
+                primerIngreso: true // Provocará el redireccionamiento para cambiar la contraseña
             });
         }
     });
 
     saveUsers(listaActual);
     renderAdmin();
-    alert("📥 EXCEL PROCESADO AUTOMÁTICAMENTE:\nSe han indexado los usuarios del Excel. Contraseña temporal por defecto asignada: Zapan2026*");
+    alert("📥 EXCEL DE PRUEBA PROCESADO:\nSe han indexado los 20 propietarios de tu archivo. El usuario de ingreso es el número de su casa y su contraseña por defecto es Zapan2026*");
 };
 
-// Acción B: Simulación de actualización diaria automática con SISCO (00:00 AM)
+// Acción B: Simulación de actualización automática con tu archivo contable SISCO
 window.ejecutarSincronizacionSisco = function() {
     let listaActual = getUsers();
 
     const datosSisco = [
-        { casa: "Casa 42 - Manzana B", nuevoSaldo: "$210.000 (Mes actual en mora)" },
-        { casa: "Casa 12 - Manzana A", nuevoSaldo: "$180.000 (Mes actual pendiente)" },
-        { casa: "Casa 34 - Manzana C", nuevoSaldo: "$360.000 (2 meses en mora)" }
+        { casa: "Casa 1", nuevoSaldo: "$0 (Al día)" },
+        { casa: "Casa 2", nuevoSaldo: "$190.000 (Mes actual en mora)" },
+        { casa: "Casa 3", nuevoSaldo: "$205.000 (Días de mora acumulados)" },
+        { casa: "Casa 4", nuevoSaldo: "$205.000 (Mes actual en mora)" },
+        { casa: "Casa 5", nuevoSaldo: "$0 (Al día)" },
+        { casa: "Casa 6", nuevoSaldo: "$190.000 (Mes actual en mora)" },
+        { casa: "Casa 7", nuevoSaldo: "$0 (Al día)" },
+        { casa: "Casa 8", nuevoSaldo: "$205.000 (Mes actual en mora)" },
+        { casa: "Casa 9", nuevoSaldo: "$0 (Al día)" },
+        { casa: "Casa 10", nuevoSaldo: "$195.000 (Mes actual en mora)" },
+        { casa: "Casa 11", nuevoSaldo: "$0 (Al día)" },
+        { casa: "Casa 12", nuevoSaldo: "$190.000 (Mes actual en mora)" },
+        { casa: "Casa 13", nuevoSaldo: "$0 (Al día)" },
+        { casa: "Casa 14", nuevoSaldo: "$195.000 (Mes actual en mora)" },
+        { casa: "Casa 15", nuevoSaldo: "$0 (Al día)" },
+        { casa: "Casa 16", nuevoSaldo: "$195.000 (Mes actual en mora)" },
+        { casa: "Casa 17", nuevoSaldo: "$0 (Al día)" },
+        { casa: "Casa 18", nuevoSaldo: "$195.000 (Mes actual en mora)" },
+        { casa: "Casa 19", nuevoSaldo: "$0 (Al día)" },
+        { casa: "Casa 20", nuevoSaldo: "$190.000 (Mes actual en mora)" }
     ];
 
     datosSisco.forEach(item => {
         let u = listaActual.find(x => x.casa.toLowerCase().trim() === item.casa.toLowerCase().trim());
         if (u) {
-            u.saldo = item.nuevoSaldo; // Se sobreescribe únicamente el campo financiero
+            u.saldo = item.nuevoSaldo; // Sobreescribe el saldo respetando la clave personal
         }
     });
 
     saveUsers(listaActual);
     renderAdmin();
-    alert("🔄 SINCRO DIARIA CON SISCO (00:00 AM):\nSaldos actualizados cruzando el identificador de inmueble. Las contraseñas personales de los usuarios se mantuvieron intactas.");
+    alert("🔄 SINCRO DIARIA CON SISCO (00:00 AM):\nSaldos de cartera actualizados enlazando el identificador de inmueble. Las contraseñas personales de los usuarios se mantuvieron intactas.");
 };
 
 // Control de cierres de sesión
