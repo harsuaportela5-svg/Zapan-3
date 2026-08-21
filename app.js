@@ -147,7 +147,7 @@ function irAlDashboard(usuario) {
     }
 }
 // ==========================================================================
-// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL AUTOMÁTICO INTEGRADO
+// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL AUTOMÁTICO INTEGRADO (DEFINITIVO)
 // ==========================================================================
 const renderUser = () => {
     if (!sesion) return;
@@ -213,6 +213,7 @@ function renderParq() {
     });
 }
 
+// Escuchador corregido de tipo Array nativo tolerante a cargas
 document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
     e.preventDefault();
     const fileInput = document.getElementById('inputExcelUsuarios');
@@ -221,18 +222,14 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
         return alert("⚠️ Por favor, seleccione primero el archivo de Excel en la sección superior.");
     }
 
-    if (typeof XLSX === 'undefined') {
-        return alert("⏳ El sistema de automatización se está inicializando en los servidores de Render. Por favor, espere 5 segundos e intente de nuevo.");
-    }
-
-    const archivoUnico = fileInput.files[0]; 
+    const archivoUnico = fileInput.files[0]; // Captura del primer archivo de la cola en memoria
     const lector = new FileReader();
 
     lector.onload = function(evt) {
         try {
             const datosArrayBuffer = evt.target.result;
             const workbook = XLSX.read(datosArrayBuffer, { type: 'array' });
-            const nombreHoja = workbook.SheetNames[0]; 
+            const nombreHoja = workbook.SheetNames[0]; // Captura limpia de la primera pestaña de datos
             const hojaContenido = workbook.Sheets[nombreHoja];
             const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
 
