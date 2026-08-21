@@ -137,3 +137,13 @@ body {
 }
 
 .hidden { display: none !important; }
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.status-red { background-color: #f8d7da; color: #721c24; }
+.status-yellow { background-color: #fff3cd; color: #856404; }
+.status-green { background-color: #d4edda; color: #155724; }
