@@ -1,11 +1,5 @@
-// 📦 Base de datos por defecto (Se incluye propiedad "primerIngreso" para simular el Excel inicial)
+// 📦 Base de datos por defecto (Inicia vacía, solo con la cuenta del Administrador)
 const deFabrica = [
-    { documento: "1010101010", contrasena: "1234", nombre: "Carlos Mendoza", casa: "Casa 42 - Manzana B", parqueadero: "Parqueadero #42 (Privado) - 🚗 Vehículo: XYZ-123", saldo: "$0 (Al día)", primerIngreso: true },
-    { documento: "80123456", contrasena: "clave1", nombre: "María Consuelo Pinzón", casa: "Casa 105 - Manzana F", parqueadero: "Parqueadero #105 (Privado) - Sin Vehículo", saldo: "$180.000 (Mes actual pendiente)", primerIngreso: true },
-    { documento: "1022394857", contrasena: "clave2", nombre: "Andrés Felipe Ospina", casa: "Casa 12 - Manzana A", parqueadero: "Sin parqueadero asignado", saldo: "$0 (Al día)", primerIngreso: true },
-    { documento: "52345678", contrasena: "clave3", nombre: "Diana Marcela Pinto", casa: "Casa 112 - Manzana G", parqueadero: "Parqueadero #112 (Privado) - 🚗 Vehículo: KGV-456", saldo: "$360.000 (2 meses en mora)", primerIngreso: true },
-    { documento: "1013456789", contrasena: "clave4", nombre: "Jorge Eliecer Silva", casa: "Casa 67 - Manzana C", parqueadero: "Parqueadero #67 (Privado) - 🚗 Vehículo: MNO-789", saldo: "$0 (Al día)", primerIngreso: true },
-    { documento: "39765432", contrasena: "clave5", nombre: "Sandra Milena Gómez", casa: "Casa 89 - Manzana D", parqueadero: "Parqueadero #89 (Privado) - 🏍️ Vehículo: QWE-12C", saldo: "$180.000 (Mes actual pendiente)", primerIngreso: true },
     { documento: "admin", contrasena: "admin123", nombre: "Administración Central", casa: "Oficina Principal", parqueadero: "Zonas de Visitantes", saldo: "N/A", primerIngreso: false }
 ];
 
@@ -114,7 +108,7 @@ formPasswordReset?.addEventListener('submit', (e) => {
     
     if (usuarioDb) {
         usuarioDb.contrasena = nueva;
-        usuarioDb.primerIngreso = false; // El usuario queda liberado para próximos accesos
+        usuarioDb.primerIngreso = false; // El usuario queda habilitado para futuros accesos
         sesion = usuarioDb;
         saveUsers(lista);
         
@@ -217,7 +211,7 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
         const nombreHoja = workbook.SheetNames[0];
         const hojaContenido = workbook.Sheets[nombreHoja];
         
-        // range: 3 salta las filas de títulos decorativos del inicio para leer la cabecera real
+        // range: 3 salta las filas decorativas para leer la cabecera real
         const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { range: 3 });
 
         let listaActual = getUsers();
