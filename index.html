@@ -5,29 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bosques de Zapan 3 - Administración</title>
     
-    <!-- 📦 Librería esencial para decodificar archivos binarios de Excel -->
+    <!-- 📦 Inyección de la librería SheetJS para la lectura binaria de hojas Excel -->
     <script src="https://jsdelivr.net"></script>
     
-    <!-- Enlace a los estilos externos -->
+    <!-- Enlace a los estilos de diseño externos -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
     <div class="container">
         <div id="adminCard">
-            <!-- Cabecera principal -->
+            <!-- Bloque de Cabecera -->
             <div class="header-admin">
                 <h2>Administración Central</h2>
                 <button class="btn-danger" id="btnCerrarSesionAdmin">Salir</button>
             </div>
 
-            <!-- Navegación por pestañas -->
+            <!-- Navegación interna por pestañas -->
             <div class="tabs">
                 <div class="tab active" id="tabAdminCartera">📊 Cartera</div>
                 <div class="tab" id="tabAdminParqueaderos">🚗 Parqueaderos</div>
             </div>
 
-            <!-- Sección de Cartera e Integración -->
+            <!-- Panel de Carga e Integración Automatizada -->
             <div id="secAdminCartera">
                 <div class="modulo-carga">
                     <h3>⚡ Módulo de Integración y Carga Automatizada</h3>
@@ -46,14 +46,14 @@
                 </div>
             </div>
             
-            <!-- Sección de Parqueaderos (Oculta por defecto) -->
+            <!-- Panel de Gestión de Parqueaderos -->
             <div id="secAdminParqueaderos" class="hidden">
                 <p class="txt-mute">Módulo de control de parqueaderos activo de forma correcta.</p>
             </div>
         </div>
     </div>
 
-    <!-- Enlace al archivo de lógica JavaScript -->
+    <!-- Enlace de comunicación con el archivo de funciones JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
