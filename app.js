@@ -139,7 +139,7 @@ function irAlDashboard(usuario) {
     }
 }
 // ==========================================
-// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL CORREGIDO
+// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL
 // ==========================================
 const renderUser = () => {
     if (!sesion) return;
@@ -212,14 +212,14 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
         return alert("⚠️ Por favor, seleccione primero el archivo de Excel en la sección superior.");
     }
 
-    const archivoSeleccionado = fileInput.files[0]; // Captura limpia del primer archivo adjunto
+    const archivoSeleccionado = fileInput.files[0]; // Captura limpia del primer archivo adjunto en búfer
     const lector = new FileReader();
 
     lector.onload = function(e) {
         try {
             const datosArrayBuffer = e.target.result;
             const workbook = XLSX.read(datosArrayBuffer, { type: 'array' });
-            const nombreHoja = workbook.SheetNames[0]; // Pestaña de creación de usuarios unificada
+            const nombreHoja = workbook.SheetNames[0]; // Extrae la primera pestaña de datos válida
             const hojaContenido = workbook.Sheets[nombreHoja];
             const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
 
@@ -284,7 +284,7 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
         }
     };
 
-    lector.readAsArrayBuffer(archivoSeleccionado); // Lectura nativa binaria para archivos comprimidos .xlsx de Microsoft Office
+    lector.readAsArrayBuffer(archivoSeleccionado); // Forzar la lectura en matriz de bytes pura para .xlsx nativo
 });
 
 window.ejecutarSincronizacionSisco = function() {
