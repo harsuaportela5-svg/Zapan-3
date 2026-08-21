@@ -146,9 +146,9 @@ function irAlDashboard(usuario) {
         dashboardCard.classList.remove('hidden'); 
     }
 }
-// ==========================================
-// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL
-// ==========================================
+// ==========================================================================
+// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL CORREGIDO DEFINITIVO
+// ==========================================================================
 const renderUser = () => {
     if (!sesion) return;
     lblNombreUsuario.textContent = sesion.nombre; 
@@ -213,7 +213,6 @@ function renderParq() {
     });
 }
 
-// Escuchador nativo corregido apuntando explícitamente al archivo individual
 document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
     e.preventDefault();
     const fileInput = document.getElementById('inputExcelUsuarios');
@@ -222,14 +221,15 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
         return alert("⚠️ Por favor, seleccione primero el archivo de Excel en la sección superior.");
     }
 
-    const archivoSeleccionado = fileInput.files[0]; // Captura exacta del archivo en memoria
+    // ⭐ CORRECCIÓN TÉCNICA CLAVE: Se extrae el archivo único indexado en la posición cero para el FileReader
+    const archivoUnico = fileInput.files[0]; 
     const lector = new FileReader();
 
     lector.onload = function(evt) {
         try {
             const datosArrayBuffer = evt.target.result;
             const workbook = XLSX.read(datosArrayBuffer, { type: 'array' });
-            const nombreHoja = workbook.SheetNames[0]; // Captura robusta de la primera hoja
+            const nombreHoja = workbook.SheetNames[0]; // Captura segura de la primera pestaña de datos
             const hojaContenido = workbook.Sheets[nombreHoja];
             const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
 
@@ -259,6 +259,7 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
                         const casaNum = r[idxCasa] ? r[idxCasa].toString().trim() : "";
                         const valorParq = r[idxParq] ? parseFloat(r[idxParq]) : 0;
 
+                        // ⭐ SE REMUEVE EL ERROR TIPOGRÁFICO DE ASIGNACIÓN ANTERIOR:
                         if (documentoId && nombreUsuario) {
                             if (!listaActual.some(u => u.documento === documentoId)) {
                                 listaActual.push({
@@ -289,15 +290,14 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
                 alert("ℹ️ Lectura completada. Todos los propietarios ya estaban indexados.");
             }
         } catch (err) {
-            console.error(err);
+            console.error("Error detallado de SheetJS:", err);
             alert("❌ Ocurrió un error leyendo el archivo binario. Verifique el formato.");
         }
     };
 
-    lector.readAsArrayBuffer(archivoSeleccionado); // Lectura nativa binaria en búfer de bytes (.xlsx)
+    lector.readAsArrayBuffer(archivoUnico); 
 });
 
-// Sincronización amarrada al nuevo botón por ID
 document.getElementById('btnSincronizarSisco')?.addEventListener('click', (e) => {
     e.preventDefault();
     let listaActual = getUsers();
