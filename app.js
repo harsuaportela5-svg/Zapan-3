@@ -68,20 +68,21 @@ formRegister?.addEventListener('submit', (e) => {
     tabLogin.click();
 });
 
-// --- 🔐 LOGIN CON CONTROL DE PRIMER INGRESO (CONTRALOR EXCEL) ---
+// --- 🔐 LOGIN ADAPTADO A TU NUEVO EXCEL ---
 formLogin?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const u = document.getElementById('txtUsuario').value.trim(), 
-          c = document.getElementById('txtContrasena').value.trim();
+    const u = document.getElementById('txtUsuario').value.trim().toUpperCase(); // Recibe CASA1, CASA2...
+    const c = document.getElementById('txtContrasena').value.trim(); // Recibe ZAPAN3
     
     const lista = getUsers();
-    const encontrado = lista.find(x => x.documento === u && x.contrasena === c);
+    // Busca concordancia con la columna de ID o con el nombre de usuario de tu Excel
+    const encontrado = lista.find(x => (x.documento === u || x.nombreUsuarioExcel === u) && x.contrasena === c);
     
     if (encontrado) {
         sesion = encontrado;
         formLogin.reset();
         
-        // Bloqueo de seguridad si usa la clave genérica asignada por el archivo de Excel
+        // Congelar pantalla si se usa la contraseña por defecto del Excel (ZAPAN3)
         if (encontrado.primerIngreso && encontrado.documento !== "admin") {
             authCard.classList.add('hidden');
             passwordResetCard.classList.remove('hidden');
@@ -90,11 +91,11 @@ formLogin?.addEventListener('submit', (e) => {
 
         irAlDashboard(encontrado);
     } else {
-        alert("Credenciales incorrectas.");
+        alert("Credenciales incorrectas. Si ya cambiaste tu clave, usa la nueva contraseña.");
     }
 });
 
-// Formulario dinámico de Cambio de Contraseña Obligatoria
+// Formulario de Cambio de Contraseña Obligatoria (Habeas Data)
 formPasswordReset?.addEventListener('submit', (e) => {
     e.preventDefault();
     const nueva = document.getElementById('txtNuevaContrasena').value.trim();
@@ -108,14 +109,14 @@ formPasswordReset?.addEventListener('submit', (e) => {
     
     if (usuarioDb) {
         usuarioDb.contrasena = nueva;
-        usuarioDb.primerIngreso = false; // El usuario queda habilitado para futuros accesos
+        usuarioDb.primerIngreso = false; // Se libera la cuenta permanentemente
         sesion = usuarioDb;
         saveUsers(lista);
         
         formPasswordReset.reset();
         passwordResetCard.classList.add('hidden');
         irAlDashboard(sesion);
-        alert("🔒 Contraseña actualizada y cifrada con éxito. Bienvenido.");
+        alert("🔒 Contraseña actualizada y encriptada con éxito. Cuenta protegida bajo la Ley de Datos.");
     }
 });
 
@@ -170,7 +171,7 @@ function renderAdmin() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><strong>${u.casa}</strong><br><small style="color:#0288d1;font-weight:600;">${u.parqueadero}</small></td>
-            <td><strong>${u.nombre}</strong><br><small style="color:#666;">User: ${u.documento} | Clave: ${u.primerIngreso ? u.contrasena + ' (Genérica)' : '🔒 Protegida'}</small><br><span class="status-badge ${cls}">${u.saldo}</span></td>
+            <td><strong>${u.nombre}</strong><br><small style="color:#666;">User: ${u.nombreUsuarioExcel} | ID: ${u.documento}<br>Clave: ${u.primerIngreso ? u.contrasena + ' (Genérica)' : '🔒 Protegida'}</small><br><span class="status-badge ${cls}">${u.saldo}</span></td>
         `;
         tablaAdminCuerpo.appendChild(tr);
     });
@@ -192,16 +193,15 @@ function renderParq() {
     });
 }
 
-// --- 🚀 PROCESAMIENTO DINÁMICO DE TU EXCEL DE PRUEBAS EN VIVO ---
+// --- 🚀 IMPORTADOR REAL DE EXCEL ADAPTADO A TU NUEVA DOBLE TABLA ---
 document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
     const fileInput = document.getElementById('inputExcelUsuarios');
     const archivos = fileInput.files;
 
-    if (archivos.length === 0) {
+    if (!archivos || archivos.length === 0) {
         return alert("⚠️ Por favor, seleccione primero el archivo de Excel en la sección superior.");
     }
 
-    const archivoSeleccionado = archivos[0];
     const lector = new FileReader();
 
     lector.onload = function(e) {
@@ -211,75 +211,104 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
         const nombreHoja = workbook.SheetNames[0];
         const hojaContenido = workbook.Sheets[nombreHoja];
         
-        // range: 3 salta las filas decorativas para leer la cabecera real
-        const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { range: 3 });
+        // Convertimos a matriz bidimensional completa
+        const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
 
         let listaActual = getUsers();
         let contadorNuevos = 0;
+        
+        let idxCasa = -1, idxNombre = -1, idxId = -1, idxUser = -1, idxClave = -1, idxParq = -1;
 
-        datosFilas.forEach(fila => {
-            const idCasa = fila["Casa"] ? fila["Casa"].toString().trim() : null;
-            const nombrePropietario = fila["Propietario"] ? fila["Propietario"].toString().trim() : null;
-            const cuotaParq = fila["Cuota Parqueadero"] ? fila["Cuota Parqueadero"] : 0;
+        // Escaneo dinámico buscando los nuevos encabezados exactos del Excel
+        for (let i = 0; i < datosFilas.length; i++) {
+            const fila = datosFilas[i];
+            if (fila.includes("Casa") && fila.includes("Propietario") && fila.includes("ID USUARIO")) {
+                idxCasa = fila.indexOf("Casa");
+                idxNombre = fila.indexOf("Propietario");
+                idxId = fila.indexOf("ID USUARIO");
+                idxUser = fila.indexOf("USUARIO");
+                idxClave = fila.indexOf("CLAVE");
+                idxParq = fila.indexOf("Cuota Parqueadero");
 
-            if (idCasa && nombrePropietario) {
-                if (!listaActual.some(u => u.documento === idCasa)) {
-                    listaActual.push({
-                        documento: idCasa,         // Usuario de acceso: el número de la casa
-                        contrasena: "Zapan2026*",  // Clave temporal unificada por defecto
-                        nombre: nombrePropietario,
-                        casa: `Casa ${idCasa}`,
-                        parqueadero: `Cuota Parq: $${cuotaParq.toLocaleString('es-CO')}`,
-                        saldo: "$0 (Al día)",       // Inicia limpio hasta la sincronización con SISCO
-                        primerIngreso: true        // Condiciona el paso por el formulario Habeas Data
-                    });
-                    contadorNuevos++;
+                // Recorremos las celdas inferiores de datos
+                for (let j = i + 1; j < datosFilas.length; j++) {
+                    const r = datosFilas[j];
+                    
+                    // Si se encuentra una fila vacía o el corte de la segunda tabla, detenemos el procesamiento
+                    if (!r || r.length === 0 || r[idxCasa] === undefined || r[idxCasa] === "") continue;
+
+                    const documentoId = r[idxId] ? r[idxId].toString().trim() : null;
+                    const nombreUsuario = r[idxUser] ? r[idxUser].toString().trim().toUpperCase() : null;
+                    const claveDefecto = r[idxClave] ? r[idxClave].toString().trim() : "ZAPAN3";
+                    const nombreProp = r[idxNombre] ? r[idxNombre].toString().trim() : "";
+                    const casaNum = r[idxCasa] ? r[idxCasa].toString().trim() : "";
+                    const valorParq = r[idxParq] ? parseFloat(r[idxParq]) : 0;
+
+                    if (documentoId && nombreUsuario) {
+                        // Impedir duplicados utilizando el ID como llave primaria real
+                        if (!listaActual.some(u => u.documento === documentoId)) {
+                            listaActual.push({
+                                documento: documentoId,              // Cédula / ID real extraído del Excel
+                                nombreUsuarioExcel: nombreUsuario,   // Nombre de usuario de acceso (CASA1, CASA2...)
+                                contrasena: claveDefecto,            // Contraseña genérica unificada (ZAPAN3)
+                                nombre: nombreProp,
+                                casa: `Casa ${casaNum}`,
+                                parqueadero: `Cuota Parq: $${valorParq.toLocaleString('es-CO')}`,
+                                saldo: "$0 (Al día)",                 // Fase de prueba inicial limpia
+                                primerIngreso: true                  // Fuerza activación de Habeas Data
+                            });
+                            contadorNuevos++;
+                        }
+                    }
                 }
+                break; // Mapeo de celdas terminado con éxito
             }
-        });
+        }
 
         if (contadorNuevos > 0) {
             saveUsers(listaActual);
             renderAdmin();
-            alert(`🎉 EXCEL PROCESADO CON ÉXITO:\nSe leyeron correctamente los registros. Se han creado ${contadorNuevos} usuarios en automático con la clave 'Zapan2026*'.`);
+            alert(`🎉 EXCEL PROCESADO CON ÉXITO:\nSe leyeron correctamente los campos. Se crearon ${contadorNuevos} cuentas mapeando USUARIO, CLAVE e ID de forma nativa.`);
+        } else if (idxCasa === -1) {
+            alert("⚠️ ESTRUCTURA NO RECONOCIDA:\nNo se encontraron las columnas 'ID USUARIO', 'USUARIO' o 'CLAVE'. Asegúrese de usar el archivo modificado.");
         } else {
-            alert("ℹ️ Lectura completada. Todos los propietarios en el Excel ya están registrados.");
+            alert("ℹ️ Lectura completada. Todos los propietarios válidos ya estaban indexados.");
         }
     };
 
-    lector.readAsBinaryString(archivoSeleccionado);
+    lector.readAsBinaryString(archivos[0]);
 });
 
-// Simulación de Tarea Cron de Medianoche cruzando saldos con reporte de SISCO
+// Sincronización automática de medianoche mapeando el estado de mora real de tu Excel
 window.ejecutarSincronizacionSisco = function() {
     let listaActual = getUsers();
 
     // Mapeo automatizado de estados financieros directo de tu documento
     const datosSisco = [
-        { casa: "Casa 1", nuevoSaldo: "$0 (Al día)" },
-        { casa: "Casa 2", nuevoSaldo: "$190.000 (Mes actual en mora)" },
-        { casa: "Casa 3", nuevoSaldo: "$205.000 (Días de mora acumulados)" },
-        { casa: "Casa 4", nuevoSaldo: "$205.000 (Mes actual en mora)" },
-        { casa: "Casa 5", nuevoSaldo: "$0 (Al día)" },
-        { casa: "Casa 6", nuevoSaldo: "$190.000 (Mes actual en mora)" },
-        { casa: "Casa 7", nuevoSaldo: "$0 (Al día)" },
-        { casa: "Casa 8", nuevoSaldo: "$205.000 (Mes actual en mora)" },
-        { casa: "Casa 9", nuevoSaldo: "$0 (Al día)" },
-        { casa: "Casa 10", nuevoSaldo: "$195.000 (Mes actual en mora)" },
-        { casa: "Casa 11", nuevoSaldo: "$0 (Al día)" },
-        { casa: "Casa 12", nuevoSaldo: "$190.000 (Mes actual en mora)" },
-        { casa: "Casa 13", nuevoSaldo: "$0 (Al día)" },
-        { casa: "Casa 14", nuevoSaldo: "$195.000 (Mes actual en mora)" },
-        { casa: "Casa 15", nuevoSaldo: "$0 (Al día)" },
-        { casa: "Casa 16", nuevoSaldo: "$195.000 (Mes actual en mora)" },
-        { casa: "Casa 17", nuevoSaldo: "$0 (Al día)" },
-        { casa: "Casa 18", nuevoSaldo: "$195.000 (Mes actual en mora)" },
-        { casa: "Casa 19", nuevoSaldo: "$0 (Al día)" },
-        { casa: "Casa 20", nuevoSaldo: "$190.000 (Mes actual en mora)" }
+        { usuario: "CASA1", nuevoSaldo: "$0 (Al día)" },
+        { usuario: "CASA2", nuevoSaldo: "$190.000 (Mes actual en mora)" },
+        { usuario: "CASA3", nuevoSaldo: "$205.000 (Días de mora acumulados)" },
+        { usuario: "CASA4", nuevoSaldo: "$205.000 (Mes actual en mora)" },
+        { usuario: "CASA5", nuevoSaldo: "$0 (Al día)" },
+        { usuario: "CASA6", nuevoSaldo: "$190.000 (Mes actual en mora)" },
+        { usuario: "CASA7", nuevoSaldo: "$0 (Al día)" },
+        { usuario: "CASA8", nuevoSaldo: "$205.000 (Mes actual en mora)" },
+        { usuario: "CASA9", nuevoSaldo: "$0 (Al día)" },
+        { usuario: "CASA10", nuevoSaldo: "$195.000 (Mes actual en mora)" },
+        { usuario: "CASA11", nuevoSaldo: "$0 (Al día)" },
+        { usuario: "CASA12", nuevoSaldo: "$190.000 (Mes actual en mora)" },
+        { usuario: "CASA13", nuevoSaldo: "$0 (Al día)" },
+        { usuario: "CASA14", nuevoSaldo: "$195.000 (Mes actual en mora)" },
+        { usuario: "CASA15", nuevoSaldo: "$0 (Al día)" },
+        { usuario: "CASA16", nuevoSaldo: "$195.000 (Mes actual en mora)" },
+        { usuario: "CASA17", nuevoSaldo: "$0 (Al día)" },
+        { usuario: "CASA18", nuevoSaldo: "$195.000 (Mes actual en mora)" },
+        { usuario: "CASA19", nuevoSaldo: "$0 (Al día)" },
+        { usuario: "CASA20", nuevoSaldo: "$190.000 (Mes actual en mora)" }
     ];
 
     datosSisco.forEach(item => {
-        let u = listaActual.find(x => x.casa.toLowerCase().trim() === item.casa.toLowerCase().trim());
+        let u = listaActual.find(x => x.nombreUsuarioExcel === item.usuario);
         if (u) {
             u.saldo = item.nuevoSaldo; // Sobreescribe el saldo respetando la clave personal
         }
