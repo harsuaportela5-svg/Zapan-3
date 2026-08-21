@@ -1,9 +1,7 @@
-// ==========================================================================
-// 📦 BLOQUE 1: CONFIGURACIÓN, PERSISTENCIA E INICIALIZACIÓN LIMPIA
-// ==========================================================================
-
-// Cuenta única de administración de fábrica
-const cuentaAdminMaestra = [
+// ==========================================
+// 📦 BLOQUE 1: CONFIGURACIÓN E INICIALIZACIÓN
+// ==========================================
+const deFabrica = [
     { 
         documento: "admin", 
         contrasena: "admin123", 
@@ -15,31 +13,15 @@ const cuentaAdminMaestra = [
     }
 ];
 
-// Si la base de datos no existe o está corrupta, inicializa únicamente con el Administrador
 if (!localStorage.getItem('usuariosPropietarios')) {
-    localStorage.setItem('usuariosPropietarios', JSON.stringify(cuentaAdminMaestra));
+    localStorage.setItem('usuariosPropietarios', JSON.stringify(deFabrica));
 }
 
-// Funciones globales de acceso y escritura a la persistencia local
-const getUsers = () => {
-    try {
-        return JSON.parse(localStorage.getItem('usuariosPropietarios')) || cuentaAdminMaestra;
-    } catch (error) {
-        console.error("Error al leer la base de datos local, reajustando...", error);
-        return cuentaAdminMaestra;
-    }
-};
-
-const saveUsers = (data) => {
-    try {
-        localStorage.setItem('usuariosPropietarios', JSON.stringify(data));
-    } catch (error) {
-        console.error("Error al escribir en la base de datos local:", error);
-    }
-};
-// ==========================================================================
-// 🎛️ BLOQUE 2: VÍNCULOS DE ELEMENTOS DEL DOM Y CONTROL DE MENÚS
-// ==========================================================================
+const getUsers = () => JSON.parse(localStorage.getItem('usuariosPropietarios')) || deFabrica;
+const saveUsers = (data) => localStorage.setItem('usuariosPropietarios', JSON.stringify(data));
+// ==========================================
+// 🎛️ BLOQUE 2: VÍNCULOS DEL DOM Y PESTAÑAS
+// ==========================================
 const tabLogin = document.getElementById('tabLogin'), 
       tabRegister = document.getElementById('tabRegister'), 
       formLogin = document.getElementById('formLogin'), 
@@ -72,7 +54,6 @@ const recParqExtra = document.getElementById('recParqExtra'),
 
 let sesion = null, criterioOrden = "casa";
 
-// Control operativo de navegación de menús y pestañas
 tabLogin?.addEventListener('click', () => { tabLogin.classList.add('active'); tabRegister.classList.remove('active'); formLogin.classList.remove('hidden'); formRegister.add('hidden'); });
 tabRegister?.addEventListener('click', () => { tabRegister.classList.add('active'); tabLogin.classList.remove('active'); formRegister.classList.remove('hidden'); formLogin.classList.add('hidden'); });
 tabAdminCartera?.addEventListener('click', () => { tabAdminCartera.classList.add('active'); tabAdminParqueaderos.classList.remove('active'); secAdminCartera.classList.remove('hidden'); secAdminParqueaderos.classList.add('hidden'); renderAdmin(); });
@@ -80,11 +61,9 @@ tabAdminParqueaderos?.addEventListener('click', () => { tabAdminParqueaderos.cla
 
 thOrdenarCasa?.addEventListener('click', () => { criterioOrden = "casa"; renderAdmin(); });
 thOrdenarSaldo?.addEventListener('click', () => { criterioOrden = "mora"; renderAdmin(); });
-// ==========================================================================
-// 🔐 BLOQUE 3: VALIDACIÓN DE INGRESO, REGISTRO Y GESTIÓN DE HABEAS DATA
-// ==========================================================================
-
-// Formulario de Registro Manual Alternativo
+// ==========================================
+// 🔐 BLOQUE 3: REGISTRO, LOGIN Y HABEAS DATA
+// ==========================================
 formRegister?.addEventListener('submit', (e) => {
     e.preventDefault();
     const nombre = document.getElementById('regNombre').value.trim(), 
@@ -97,12 +76,11 @@ formRegister?.addEventListener('submit', (e) => {
     
     lista.push({ documento, contrasena, nombre, casa, parqueadero: "Sin parqueadero asignado", saldo: "$0 (Al día)", primerIngreso: false });
     saveUsers(lista); 
-    alert("¡Registro Manual Exitoso!"); 
+    alert("¡Registro Exitoso!"); 
     formRegister.reset(); 
     tabLogin.click();
 });
 
-// Lógica de Validación Inteligente de Credenciales
 formLogin?.addEventListener('submit', (e) => {
     e.preventDefault();
     const entradaUsuario = document.getElementById('txtUsuario').value.trim();
@@ -111,11 +89,9 @@ formLogin?.addEventListener('submit', (e) => {
     const lista = getUsers();
     let encontrado = null;
 
-    // Aislamiento de seguridad para la cuenta maestra de administración
     if (entradaUsuario.toLowerCase() === "admin") {
         encontrado = lista.find(x => x.documento.toLowerCase() === "admin" && x.contrasena === c);
     } else {
-        // Validación adaptada para las mayúsculas de tu archivo Excel (ej: CASA1, CASA2)
         const u = entradaUsuario.toUpperCase();
         encontrado = lista.find(x => (x.documento === u || (x.nombreUsuarioExcel && x.nombreUsuarioExcel === u)) && x.contrasena === c);
     }
@@ -124,7 +100,6 @@ formLogin?.addEventListener('submit', (e) => {
         sesion = encontrado;
         formLogin.reset();
         
-        // Flujo Forzoso Habeas Data: Intercepta al usuario si usa la clave por defecto
         if (encontrado.primerIngreso && encontrado.documento !== "admin") {
             authCard.classList.add('hidden');
             passwordResetCard.classList.remove('hidden');
@@ -133,32 +108,31 @@ formLogin?.addEventListener('submit', (e) => {
 
         irAlDashboard(encontrado);
     } else {
-        alert("Credenciales incorrectas. Verifique el usuario y la contraseña correspondientes.");
+        alert("Credenciales incorrectas. Verifique el usuario y la contraseña.");
     }
 });
 
-// Procesamiento del formulario de Actualización Obligatoria de Contraseña
 formPasswordReset?.addEventListener('submit', (e) => {
     e.preventDefault();
     const nueva = document.getElementById('txtNuevaContrasena').value.trim();
     const confirma = document.getElementById('txtConfirmarContrasena').value.trim();
 
-    if (nueva.length < 4) return alert("La contraseña debe poseer un mínimo de 4 caracteres.");
-    if (nueva !== confirma) return alert("Las contraseñas ingresadas no coinciden.");
+    if (nueva.length < 4) return alert("La contraseña debe tener al menos 4 caracteres.");
+    if (nueva !== confirma) return alert("Las contraseñas no coinciden.");
 
     let lista = getUsers();
     let usuarioDb = lista.find(x => x.documento === sesion.documento);
     
     if (usuarioDb) {
         usuarioDb.contrasena = nueva;
-        usuarioDb.primerIngreso = false; // Desactiva la bandera de primer ingreso permanentemente
+        usuarioDb.primerIngreso = false; 
         sesion = usuarioDb;
         saveUsers(lista);
         
         formPasswordReset.reset();
         passwordResetCard.classList.add('hidden');
         irAlDashboard(sesion);
-        alert("🔒 Contraseña actualizada y encriptada con éxito. Su cuenta se encuentra protegida bajo la Ley de Datos Personales.");
+        alert("🔒 Contraseña actualizada y encriptada con éxito. Cuenta protegida bajo la Ley de Datos.");
     }
 });
 
@@ -172,15 +146,16 @@ function irAlDashboard(usuario) {
         dashboardCard.classList.remove('hidden'); 
     }
 }
-// ==========================================================================
-// 📥 BLOQUE 4: ALGORITMOS DE RENDERIZACIÓN Y PROCESADOR DE ARCHIVOS EXCEL
-// ==========================================================================
-
+// ==========================================
+// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL
+// ==========================================
 const renderUser = () => {
     if (!sesion) return;
     lblNombreUsuario.textContent = sesion.nombre; 
     lblInmueble.textContent = sesion.casa; 
-    lblParqueadero.textContent = sesion.parqueadero;
+    
+    const targetParq = document.getElementById('lblParqueadero');
+    if (targetParq) targetParq.textContent = sesion.parqueadero;
     
     let extra = 0;
     if (sesion.parqueadero.includes("🚗")) extra = 30000;
@@ -238,86 +213,90 @@ function renderParq() {
     });
 }
 
-// Lector binario adaptado a la estructura de doble tabla de tu Excel
+// CAPTURA BINARIA REPARADA PARA EL INPUT EXCEL EN VIVO
 document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
     const fileInput = document.getElementById('inputExcelUsuarios');
-    const archivos = fileInput.files;
-
-    if (!archivos || archivos.length === 0) {
+    
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
         return alert("⚠️ Por favor, seleccione primero el archivo de Excel en la sección superior.");
     }
 
+    // Corrección crítica de lectura de archivos
+    const archivoSeleccionado = fileInput.files[0];
     const lector = new FileReader();
 
     lector.onload = function(e) {
-        const datosBinarios = e.target.result;
-        const workbook = XLSX.read(datosBinarios, { type: 'binary' });
-        const nombreHoja = workbook.SheetNames[0]; // Captura la primera hoja de trabajo
-        const hojaContenido = workbook.Sheets[nombreHoja];
-        const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
+        try {
+            const datosBinarios = e.target.result;
+            const workbook = XLSX.read(datosBinarios, { type: 'binary' });
+            const nombreHoja = workbook.SheetNames[0]; // Extrae de manera robusta la primera pestaña
+            const hojaContenido = workbook.Sheets[nombreHoja];
+            const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
 
-        let listaActual = getUsers();
-        let contadorNuevos = 0;
-        
-        let idxCasa = -1, idxNombre = -1, idxId = -1, idxUser = -1, idxClave = -1, idxParq = -1;
+            let listaActual = getUsers();
+            let contadorNuevos = 0;
+            
+            let idxCasa = -1, idxNombre = -1, idxId = -1, idxUser = -1, idxClave = -1, idxParq = -1;
 
-        // Escaneo dinámico inteligente de celdas
-        for (let i = 0; i < datosFilas.length; i++) {
-            const fila = datosFilas[i];
-            if (fila && fila.includes("Casa") && fila.includes("Propietario") && fila.includes("ID USUARIO")) {
-                idxCasa = fila.indexOf("Casa");
-                idxNombre = fila.indexOf("Propietario");
-                idxId = fila.indexOf("ID USUARIO");
-                idxUser = fila.indexOf("USUARIO");
-                idxClave = fila.indexOf("CLAVE");
-                idxParq = fila.indexOf("Cuota Parqueadero");
+            for (let i = 0; i < datosFilas.length; i++) {
+                const fila = datosFilas[i];
+                if (fila && fila.includes("Casa") && fila.includes("Propietario") && fila.includes("ID USUARIO")) {
+                    idxCasa = fila.indexOf("Casa");
+                    idxNombre = fila.indexOf("Propietario");
+                    idxId = fila.indexOf("ID USUARIO");
+                    idxUser = fila.indexOf("USUARIO");
+                    idxClave = fila.indexOf("CLAVE");
+                    idxParq = fila.indexOf("Cuota Parqueadero");
 
-                for (let j = i + 1; j < datosFilas.length; j++) {
-                    const r = datosFilas[j];
-                    if (!r || r.length === 0 || r[idxCasa] === undefined || r[idxCasa] === "") continue;
+                    for (let j = i + 1; j < datosFilas.length; j++) {
+                        const r = datosFilas[j];
+                        if (!r || r.length === 0 || r[idxCasa] === undefined || r[idxCasa] === "") continue;
 
-                    const documentoId = r[idxId] ? r[idxId].toString().trim() : null;
-                    const nombreUsuario = r[idxUser] ? r[idxUser].toString().trim().toUpperCase() : null;
-                    const claveDefecto = r[idxClave] ? r[idxClave].toString().trim() : "ZAPAN3";
-                    const nombreProp = r[idxNombre] ? r[idxNombre].toString().trim() : "";
-                    const casaNum = r[idxCasa] ? r[idxCasa].toString().trim() : "";
-                    const valorParq = r[idxParq] ? parseFloat(r[idxParq]) : 0;
+                        const documentoId = r[idxId] ? r[idxId].toString().trim() : null;
+                        const nombreUsuario = r[idxUser] ? r[idxUser].toString().trim().toUpperCase() : null;
+                        const claveDefecto = r[idxClave] ? r[idxClave].toString().trim() : "ZAPAN3";
+                        const nombreProp = r[idxNombre] ? r[idxNombre].toString().trim() : "";
+                        const casaNum = r[idxCasa] ? r[idxCasa].toString().trim() : "";
+                        const valorParq = r[idxParq] ? parseFloat(r[idxParq]) : 0;
 
-                    if (documentoId && nombreUsuario) {
-                        if (!listaActual.some(u => u.documento === documentoId)) {
-                            listaActual.push({
-                                documento: documentoId,
-                                nombreUsuarioExcel: nombreUsuario,
-                                contrasena: claveDefecto,
-                                nombre: nombreProp,
-                                casa: `Casa ${casaNum}`,
-                                parqueadero: `Cuota Parq: $${valorParq.toLocaleString('es-CO')}`,
-                                saldo: "$0 (Al día)",
-                                primerIngreso: true
-                            });
-                            contadorNuevos++;
+                        if (documentoId && nombreUsuario) {
+                            if (!listaActual.some(u => u.documento === documentoId)) {
+                                listaActual.push({
+                                    documento: documentoId,
+                                    nombreUsuarioExcel: nombreUsuario,
+                                    contrasena: claveDefecto,
+                                    nombre: nombreProp,
+                                    casa: `Casa ${casaNum}`,
+                                    parqueadero: `Cuota Parq: $${valorParq.toLocaleString('es-CO')}`,
+                                    saldo: "$0 (Al día)",
+                                    primerIngreso: true
+                                });
+                                contadorNuevos++;
+                            }
                         }
                     }
+                    break;
                 }
-                break;
             }
-        }
 
-        if (contadorNuevos > 0) {
-            saveUsers(listaActual);
-            renderAdmin();
-            alert(`🎉 EXCEL PROCESADO CON ÉXITO:\nSe leyeron correctamente los campos. Se crearon ${contadorNuevos} cuentas mapeando USUARIO, CLAVE e ID de forma nativa.`);
-        } else if (idxCasa === -1) {
-            alert("⚠️ ESTRUCTURA NO RECONOCIDA:\nNo se encontraron las columnas clave 'ID USUARIO', 'USUARIO' o 'CLAVE' en el archivo.");
-        } else {
-            alert("ℹ️ Lectura completada. Todos los propietarios válidos ya estaban indexados.");
+            if (contadorNuevos > 0) {
+                saveUsers(listaActual);
+                renderAdmin();
+                alert(`🎉 EXCEL PROCESADO CON ÉXITO:\nSe crearon ${contadorNuevos} cuentas mapeando USUARIO, CLAVE e ID de forma nativa.`);
+            } else if (idxCasa === -1) {
+                alert("⚠️ ESTRUCTURA NO RECONOCIDA:\nNo se encontraron las columnas esperadas en el Excel.");
+            } else {
+                alert("ℹ️ Lectura completada. Todos los propietarios ya estaban indexados.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("❌ Ocurrió un error leyendo el archivo binario. Verifique el formato.");
         }
     };
 
-    lector.readAsBinaryString(archivos[0]);
+    lector.readAsBinaryString(archivoSeleccionado);
 });
 
-// Simulación de Cron Job automático diaria de saldos con SISCO (12:00 PM)
 window.ejecutarSincronizacionSisco = function() {
     let listaActual = getUsers();
     const datosSisco = [
@@ -340,7 +319,7 @@ window.ejecutarSincronizacionSisco = function() {
 
     saveUsers(listaActual);
     renderAdmin();
-    alert("🔄 SINCRO DIARIA CON SISCO (00:00 AM):\nSaldos de cartera actualizados exitosamente sin alterar las credenciales de acceso.");
+    alert("🔄 SINCRO DIARIA CON SISCO (00:00 AM):\nSaldos de cartera actualizados exitosamente.");
 };
 
 btnCerrarSesion?.addEventListener('click', () => { sesion = null; dashboardCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
