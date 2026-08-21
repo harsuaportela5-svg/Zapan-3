@@ -176,3 +176,70 @@ const renderUser = () => {
     }
 };
 // ==========================================================================
+// ==========================================================================
+// 📥 CONFIGURACIÓN DEL BOTÓN DE CARGA DESDE EXCEL
+// ==========================================================================
+const btnCargarExcel = document.querySelector('.btn-success') || document.querySelector('button[class*="Cargar"]');
+const inputExcel = document.getElementById('archivoExcel') || document.querySelector('input[type="file"]');
+
+btnCargarExcel?.addEventListener('click', () => {
+    const file = inputExcel?.files[0];
+    if (!file) {
+        return alert("Por favor, selecciona primero el archivo 'usuarios_limpios.xlsx'.");
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            
+            // Convierte las filas del Excel a objetos JSON
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+            if (jsonData.length === 0) {
+                return alert("El archivo Excel está vacío o no tiene el formato correcto.");
+            }
+
+            // Mapea los datos del Excel al formato del LocalStorage
+            let listaUsuarios = JSON.parse(localStorage.getItem('usuariosPropietarios')) || [];
+            
+            jsonData.forEach(fila => {
+                // Valida que el registro tenga los campos necesarios
+                const documento = String(fila['ID USUARIO'] || fila['id_usuario'] || '').trim();
+                const nombre = String(fila['Propietario'] || fila['propietario'] || '').trim();
+                const casa = String(fila['Casa'] || fila['casa'] || '').trim();
+                const contrasena = String(fila['CLAVE'] || fila['clave'] || 'ZAPAN3').trim();
+
+                if (documento && nombre) {
+                    // Evita duplicados en la base de datos local
+                    if (!listaUsuarios.some(u => u.documento === documento)) {
+                        listaUsuarios.push({
+                            documento: documento,
+                            contrasena: contrasena,
+                            nombre: nombre,
+                            casa: "Casa " + casa,
+                            parqueadero: "Sin parqueadero asignado",
+                            saldo: "$0 (Al día)",
+                            primerIngreso: true // Pide cambio de clave en el primer inicio
+                        });
+                    }
+                }
+            });
+
+            localStorage.setItem('usuariosPropietarios', JSON.stringify(listaUsuarios));
+            alert(`¡Éxito! Se procesaron y crearon los usuarios correctamente.`);
+            
+            // Recarga las tablas del administrador si la función existe
+            if (typeof renderAdmin === 'function') renderAdmin();
+
+        } catch (error) {
+            console.error(error);
+            alert("Ocurrió un error leyendo el archivo binario. Verifique el formato.");
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+});
