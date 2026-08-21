@@ -146,9 +146,10 @@ function irAlDashboard(usuario) {
         dashboardCard.classList.remove('hidden'); 
     }
 }
-// ==========================================
-// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL
-// ==========================================
+// ==========================================================================
+// 📥 BLOQUE 4: ALGORITMOS DE RENDERIZACIÓN Y PROCESADOR DE ARCHIVOS EXCEL REAL
+// ==========================================================================
+
 const renderUser = () => {
     if (!sesion) return;
     lblNombreUsuario.textContent = sesion.nombre; 
@@ -213,7 +214,7 @@ function renderParq() {
     });
 }
 
-// CAPTURA BINARIA REPARADA PARA EL INPUT EXCEL EN VIVO
+// 🚀 LECTOR CORREGIDO DE ALTA COMPATIBILIDAD CON FORMATO BINARIO ARRAYBUFFER (.XLSX)
 document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
     const fileInput = document.getElementById('inputExcelUsuarios');
     
@@ -221,15 +222,16 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
         return alert("⚠️ Por favor, seleccione primero el archivo de Excel en la sección superior.");
     }
 
-    // Corrección crítica de lectura de archivos
-    const archivoSeleccionado = fileInput.files[0];
+    const archivoSeleccionado = fileInput.files[0]; // Captura exacta del puntero del archivo
     const lector = new FileReader();
 
     lector.onload = function(e) {
         try {
-            const datosBinarios = e.target.result;
-            const workbook = XLSX.read(datosBinarios, { type: 'binary' });
-            const nombreHoja = workbook.SheetNames[0]; // Extrae de manera robusta la primera pestaña
+            const datosArrayBuffer = e.target.result;
+            // Configuración optimizada de SheetJS para leer búferes binarios puros (.xlsx nativo)
+            const workbook = XLSX.read(datosArrayBuffer, { type: 'array' });
+            
+            const nombreHoja = workbook.SheetNames[0]; // Captura la primera pestaña de datos
             const hojaContenido = workbook.Sheets[nombreHoja];
             const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
 
@@ -284,17 +286,18 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
                 renderAdmin();
                 alert(`🎉 EXCEL PROCESADO CON ÉXITO:\nSe crearon ${contadorNuevos} cuentas mapeando USUARIO, CLAVE e ID de forma nativa.`);
             } else if (idxCasa === -1) {
-                alert("⚠️ ESTRUCTURA NO RECONOCIDA:\nNo se encontraron las columnas esperadas en el Excel.");
+                alert("⚠️ ESTRUCTURA NO RECONOCIDA:\nNo se encontraron las columnas clave 'ID USUARIO', 'USUARIO' o 'CLAVE' en la hoja subida.");
             } else {
-                alert("ℹ️ Lectura completada. Todos los propietarios ya estaban indexados.");
+                alert("ℹ️ Lectura completada. Todos los propietarios válidos ya estaban indexados.");
             }
         } catch (err) {
-            console.error(err);
-            alert("❌ Ocurrió un error leyendo el archivo binario. Verifique el formato.");
+            console.error("Detalle técnico del error:", err);
+            alert("❌ Ocurrió un error leyendo la matriz binaria del archivo. Verifique el formato.");
         }
     };
 
-    lector.readAsBinaryString(archivoSeleccionado);
+    // Cambio operativo estratégico: se lee como ArrayBuffer para evitar bloqueos por strings
+    lector.readAsArrayBuffer(archivoSeleccionado);
 });
 
 window.ejecutarSincronizacionSisco = function() {
@@ -319,7 +322,7 @@ window.ejecutarSincronizacionSisco = function() {
 
     saveUsers(listaActual);
     renderAdmin();
-    alert("🔄 SINCRO DIARIA CON SISCO (00:00 AM):\nSaldos de cartera actualizados exitosamente.");
+    alert("🔄 SINCRO DIARIA CON SISCO (00:00 AM):\nSaldos de cartera actualizados exitosamente sin alterar las credenciales de acceso.");
 };
 
 btnCerrarSesion?.addEventListener('click', () => { sesion = null; dashboardCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
