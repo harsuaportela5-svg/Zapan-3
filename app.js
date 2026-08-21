@@ -68,15 +68,23 @@ formRegister?.addEventListener('submit', (e) => {
     tabLogin.click();
 });
 
-// --- 🔐 LOGIN ADAPTADO A TU NUEVO EXCEL ---
+// --- 🔐 LOGIN CORREGIDO (ADMIN EN MINÚSCULAS Y USUARIOS EN MAYÚSCULAS) ---
 formLogin?.addEventListener('submit', (e) => {
     e.preventDefault();
-    const u = document.getElementById('txtUsuario').value.trim().toUpperCase(); // Recibe CASA1, CASA2...
-    const c = document.getElementById('txtContrasena').value.trim(); // Recibe ZAPAN3
+    const entradaUsuario = document.getElementById('txtUsuario').value.trim();
+    const c = document.getElementById('txtContrasena').value.trim();
     
     const lista = getUsers();
-    // Busca concordancia con la columna de ID o con el nombre de usuario de tu Excel
-    const encontrado = lista.find(x => (x.documento === u || x.nombreUsuarioExcel === u) && x.contrasena === c);
+    let encontrado = null;
+
+    // Validación inteligente: Si es la cuenta maestra de administración
+    if (entradaUsuario.toLowerCase() === "admin") {
+        encontrado = lista.find(x => x.documento.toLowerCase() === "admin" && x.contrasena === c);
+    } else {
+        // Si es un propietario del Excel, se convierte a MAYÚSCULAS (ej: CASA1, CASA2...)
+        const u = entradaUsuario.toUpperCase();
+        encontrado = lista.find(x => (x.documento === u || x.nombreUsuarioExcel === u) && x.contrasena === c);
+    }
     
     if (encontrado) {
         sesion = encontrado;
@@ -91,7 +99,7 @@ formLogin?.addEventListener('submit', (e) => {
 
         irAlDashboard(encontrado);
     } else {
-        alert("Credenciales incorrectas. Si ya cambiaste tu clave, usa la nueva contraseña.");
+        alert("Credenciales incorrectas. Verifique el usuario y la contraseña.");
     }
 });
 
@@ -211,7 +219,6 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
         const nombreHoja = workbook.SheetNames[0];
         const hojaContenido = workbook.Sheets[nombreHoja];
         
-        // Convertimos a matriz bidimensional completa
         const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
 
         let listaActual = getUsers();
@@ -219,7 +226,6 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
         
         let idxCasa = -1, idxNombre = -1, idxId = -1, idxUser = -1, idxClave = -1, idxParq = -1;
 
-        // Escaneo dinámico buscando los nuevos encabezados exactos del Excel
         for (let i = 0; i < datosFilas.length; i++) {
             const fila = datosFilas[i];
             if (fila.includes("Casa") && fila.includes("Propietario") && fila.includes("ID USUARIO")) {
@@ -230,11 +236,9 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
                 idxClave = fila.indexOf("CLAVE");
                 idxParq = fila.indexOf("Cuota Parqueadero");
 
-                // Recorremos las celdas inferiores de datos
                 for (let j = i + 1; j < datosFilas.length; j++) {
                     const r = datosFilas[j];
                     
-                    // Si se encuentra una fila vacía o el corte de la segunda tabla, detenemos el procesamiento
                     if (!r || r.length === 0 || r[idxCasa] === undefined || r[idxCasa] === "") continue;
 
                     const documentoId = r[idxId] ? r[idxId].toString().trim() : null;
@@ -244,24 +248,23 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
                     const casaNum = r[idxCasa] ? r[idxCasa].toString().trim() : "";
                     const valorParq = r[idxParq] ? parseFloat(r[idxParq]) : 0;
 
-                    if (documentoId && nombreUsuario) {
-                        // Impedir duplicados utilizando el ID como llave primaria real
+                    if (documentoId && SecretUser = nombreUsuario) {
                         if (!listaActual.some(u => u.documento === documentoId)) {
                             listaActual.push({
-                                documento: documentoId,              // Cédula / ID real extraído del Excel
-                                nombreUsuarioExcel: nombreUsuario,   // Nombre de usuario de acceso (CASA1, CASA2...)
-                                contrasena: claveDefecto,            // Contraseña genérica unificada (ZAPAN3)
+                                documento: documentoId,
+                                nombreUsuarioExcel: nombreUsuario,
+                                contrasena: claveDefecto,
                                 nombre: nombreProp,
                                 casa: `Casa ${casaNum}`,
                                 parqueadero: `Cuota Parq: $${valorParq.toLocaleString('es-CO')}`,
-                                saldo: "$0 (Al día)",                 // Fase de prueba inicial limpia
-                                primerIngreso: true                  // Fuerza activación de Habeas Data
+                                saldo: "$0 (Al día)",
+                                primerIngreso: true
                             });
                             contadorNuevos++;
                         }
                     }
                 }
-                break; // Mapeo de celdas terminado con éxito
+                break;
             }
         }
 
@@ -283,7 +286,6 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
 window.ejecutarSincronizacionSisco = function() {
     let listaActual = getUsers();
 
-    // Mapeo automatizado de estados financieros directo de tu documento
     const datosSisco = [
         { usuario: "CASA1", nuevoSaldo: "$0 (Al día)" },
         { usuario: "CASA2", nuevoSaldo: "$190.000 (Mes actual en mora)" },
@@ -310,7 +312,7 @@ window.ejecutarSincronizacionSisco = function() {
     datosSisco.forEach(item => {
         let u = listaActual.find(x => x.nombreUsuarioExcel === item.usuario);
         if (u) {
-            u.saldo = item.nuevoSaldo; // Sobreescribe el saldo respetando la clave personal
+            u.saldo = item.nuevoSaldo; 
         }
     });
 
