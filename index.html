@@ -1,183 +1,24 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bosques de Zapan 3</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<div class="container">
-
-    <!-- 🔑 CARD 1: AUTENTICACIÓN (LOGIN / REGISTRO) -->
-    <div id="authCard" class="card">
-        <div class="header">
-            <div class="logo">🌿</div>
-            <h2>Bosques de Zapan Etapa 3</h2>
-            <p>Portal de Propietarios</p>
-        </div>
-        <div class="tabs">
-            <button id="tabLogin" class="tab-btn active">Ingresar</button>
-            <button id="tabRegister" class="tab-btn">Registrarse</button>
-        </div>
-        
-        <form id="formLogin" class="portal-form">
-            <div class="input-group">
-                <label>Documento / Usuario</label>
-                <input type="text" id="txtUsuario" required>
-            </div>
-            <div class="input-group">
-                <label>Contraseña</label>
-                <input type="password" id="txtContrasena" required>
-            </div>
-            <button type="submit" class="btn-primary">Ingresar al portal</button>
-            <div class="demo-box">
-                <strong>Modo demostración</strong><br>
-                Propietario: 1010101010 / 1234<br>
-                Administración: admin / admin123
-            </div>
-        </form>
-
-        <form id="formRegister" class="portal-form hidden">
-            <div class="input-group">
-                <label>Nombre Completo</label>
-                <input type="text" id="regNombre" required>
-            </div>
-            <div class="input-group">
-                <label>Documento</label>
-                <input type="text" id="regDocumento" required>
-            </div>
-            <div class="input-group">
-                <label>Inmueble</label>
-                <input type="text" id="regCasa" placeholder="Ej. Casa 42 - Manzana B" required>
-            </div>
-            <div class="input-group">
-                <label>Contraseña</label>
-                <input type="password" id="regContrasena" required>
-            </div>
-            <button type="submit" class="btn-primary">Crear Cuenta</button>
-        </form>
+<!-- ⚙️ MÓDULO DE AUTOMATIZACIÓN E IMPORTACIÓN REAL DE EXCEL -->
+<div class="admin-integration-panel">
+    <h4>⚡ Módulo de Integración y Carga Automatizada</h4>
+    
+    <div style="background: #fff; padding: 12px; border: 1px solid #cbd5e0; border-radius: 6px; margin-bottom: 12px; text-align: left;">
+        <label style="display:block; font-size:11px; font-weight:bold; color:#4a5568; margin-bottom:4px; text-transform:uppercase;">
+            1. Seleccionar Base de Datos de Prueba (Excel)
+        </label>
+        <input type="file" id="inputExcelUsuarios" accept=".xlsx, .xls, .csv" style="font-size: 12px; width: 100%;">
     </div>
 
-    <!-- 🔒 CARD 2: CAMBIO OBLIGATORIO DE CONTRASEÑA (HABEAS DATA) -->
-    <div id="passwordResetCard" class="card hidden">
-        <div class="reset-alert-header">
-            <div class="reset-logo">⚠️</div>
-            <h2>Primer Ingreso Detectado</h2>
-            <p style="color: #666; font-size: 0.9em; padding: 0 10px; margin-top: 5px;">
-                Por políticas de seguridad y la Ley de Habeas Data, debe cambiar la contraseña genérica asignada por el archivo Excel antes de continuar.
-            </p>
-        </div>
-        <form id="formPasswordReset" class="portal-form">
-            <div class="input-group">
-                <label>Nueva Contraseña Personal</label>
-                <input type="password" id="txtNuevaContrasena" placeholder="Mínimo 4 caracteres" required>
-            </div>
-            <div class="input-group">
-                <label>Confirmar Contraseña</label>
-                <input type="password" id="txtConfirmarContrasena" placeholder="Repita la contraseña" required>
-            </div>
-            <button type="submit" class="btn-primary btn-warning-reset">Actualizar y Proteger Cuenta</button>
-        </form>
+    <div class="integration-actions">
+        <button id="btnProcesarExcel" class="btn-excel-sim" style="width: 100%; margin-bottom: 5px;">
+            📥 Cargar y Crear Usuarios desde Excel
+        </button>
+        <button onclick="ejecutarSincronizacionSisco()" class="btn-sisco-sim" style="width: 100%;">
+            🔄 Simular Sincronización SISCO (00:00 AM)
+        </button>
     </div>
-
-    <!-- 🏡 CARD 3: PORTAL DEL PROPIETARIO (DASHBOARD) -->
-    <div id="dashboardCard" class="card hidden">
-        <div class="header-dashboard">
-            <div class="user-welcome">
-                <span>Bienvenido/a,</span>
-                <h3 id="lblNombreUsuario">...</h3>
-            </div>
-            <button id="btnCerrarSesion" class="btn-logout">Salir</button>
-        </div>
-        <div class="info-tile">
-            <span class="tile-icon">🏡</span>
-            <span class="tile-label">Ubicación del Inmueble</span>
-            <strong id="lblInmueble">...</strong>
-        </div>
-        <div class="info-tile alternative">
-            <span class="tile-icon">🔒</span>
-            <span class="tile-label">Asignación Logística</span>
-            <strong id="lblParqueadero">...</strong>
-        </div>
-        <div class="receipt-box">
-            <h4>📄 Estado de Cuenta a la Fecha</h4>
-            <div class="receipt-row"><span>Administración Base:</span><strong>$180.000</strong></div>
-            <div class="receipt-row"><span>Cobro Parqueadero:</span><strong id="recParqExtra">$0</strong></div>
-            <div class="receipt-row total-row"><span>TOTAL MES ACTUAL:</span><strong id="recTotalMes">$180.000</strong></div>
-            <div class="receipt-row balance-row"><span>ESTADO CARTERA:</span><span id="lblSaldoBadge" class="status-badge">...</span></div>
-        </div>
-        <div class="history-box">
-            <h4>📜 Historial de Pagos Recientes</h4>
-            <ul class="history-list">
-                <li><span>Julio 2026</span><strong style="color:green;">Aprobado ✓</strong></li>
-                <li><span>Junio 2026</span><strong style="color:green;">Aprobado ✓</strong></li>
-                <li><span>Mayo 2026</span><strong style="color:green;">Aprobado ✓</strong></li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- 📊 CARD 4: PANEL DE ADMINISTRACIÓN CENTRAL -->
-    <div id="adminCard" class="card hidden">
-        <div class="header-dashboard">
-            <h3>Administración Central</h3>
-            <button id="btnCerrarSesionAdmin" class="btn-logout">Salir</button>
-        </div>
-        <div class="tabs">
-            <button id="tabAdminCartera" class="tab-btn active">📊 Cartera</button>
-            <button id="tabAdminParqueaderos" class="tab-btn">🚗 Parqueaderos</button>
-        </div>
-
-        <!-- ⚙️ MÓDULO DE AUTOMATIZACIÓN (DEMO INTEGRACIÓN) -->
-        <div class="admin-integration-panel">
-            <h4>⚡ Simulador de Integración y Cargas Automáticas</h4>
-            <div class="integration-actions">
-                <button onclick="ejecutarPruebaExcel()" class="btn-excel-sim">
-                    📥 Cargar Inicial (Excel)
-                </button>
-                <button onclick="ejecutarSincronizacionSisco()" class="btn-sisco-sim">
-                    🔄 Sincronizar SISCO (00:00)
-                </button>
-            </div>
-            <p class="integration-note">
-                Presiona para demostrar cómo el sistema procesa archivos y actualiza saldos sin alterar las contraseñas del usuario.
-            </p>
-        </div>
-
-        <!-- Tab Cartera -->
-        <div id="secAdminCartera" class="admin-content">
-            <div class="table-container">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th id="thOrdenarCasa" style="cursor:pointer;color:#0288d1;">Inmueble 🔽</th>
-                            <th id="thOrdenarSaldo" style="cursor:pointer;color:#0288d1;">Datos / Estado 🔽</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaAdminCuerpo"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Tab Parqueaderos -->
-        <div id="secAdminParqueaderos" class="admin-content hidden">
-            <div class="table-container">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Estacionamiento</th>
-                            <th>Asignado A</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaParqueaderosCuerpo"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
+    
+    <p class="integration-note">
+        Sube tu archivo de Excel. El sistema extraerá los propietarios, creará sus cuentas con la contraseña temporal por defecto y los listará abajo [format-organize-outputs].
+    </p>
 </div>
-
-<script src="app.js"></script>
-</body>
-</html>
