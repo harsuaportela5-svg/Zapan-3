@@ -147,7 +147,7 @@ function irAlDashboard(usuario) {
     }
 }
 // ==========================================================================
-// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL CORREGIDO DEFINITIVO
+// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL AUTOMÁTICO INTEGRADO
 // ==========================================================================
 const renderUser = () => {
     if (!sesion) return;
@@ -213,6 +213,7 @@ function renderParq() {
     });
 }
 
+// 🛡️ MOTOR DE INTEGRACIÓN NATIVO ASÍNCRONO BLINDADO CONTRA CACHÉ Y ERRORES DE LIBRERÍA
 document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
     e.preventDefault();
     const fileInput = document.getElementById('inputExcelUsuarios');
@@ -221,7 +222,11 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
         return alert("⚠️ Por favor, seleccione primero el archivo de Excel en la sección superior.");
     }
 
-    // ⭐ CORRECCIÓN TÉCNICA CLAVE: Se extrae el archivo único indexado en la posición cero para el FileReader
+    // Validación de seguridad: Verifica que la librería externa ya se encuentre cargada en Render antes de leer
+    if (typeof XLSX === 'undefined') {
+        return alert("⏳ El sistema de automatización se está inicializando en los servidores de Render. Por favor, espere 5 segundos e intente de nuevo.");
+    }
+
     const archivoUnico = fileInput.files[0]; 
     const lector = new FileReader();
 
@@ -229,7 +234,7 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
         try {
             const datosArrayBuffer = evt.target.result;
             const workbook = XLSX.read(datosArrayBuffer, { type: 'array' });
-            const nombreHoja = workbook.SheetNames[0]; // Captura segura de la primera pestaña de datos
+            const nombreHoja = workbook.SheetNames[0]; 
             const hojaContenido = workbook.Sheets[nombreHoja];
             const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
 
@@ -259,7 +264,6 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
                         const casaNum = r[idxCasa] ? r[idxCasa].toString().trim() : "";
                         const valorParq = r[idxParq] ? parseFloat(r[idxParq]) : 0;
 
-                        // ⭐ SE REMUEVE EL ERROR TIPOGRÁFICO DE ASIGNACIÓN ANTERIOR:
                         if (documentoId && nombreUsuario) {
                             if (!listaActual.some(u => u.documento === documentoId)) {
                                 listaActual.push({
@@ -290,7 +294,7 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
                 alert("ℹ️ Lectura completada. Todos los propietarios ya estaban indexados.");
             }
         } catch (err) {
-            console.error("Error detallado de SheetJS:", err);
+            console.error(err);
             alert("❌ Ocurrió un error leyendo el archivo binario. Verifique el formato.");
         }
     };
@@ -308,7 +312,7 @@ document.getElementById('btnSincronizarSisco')?.addEventListener('click', (e) =>
         { usuario: "CASA7", nuevoSaldo: "$0 (Al día)" }, { usuario: "CASA8", nuevoSaldo: "$205.000 (Mes actual en mora)" },
         { usuario: "CASA9", nuevoSaldo: "$0 (Al día)" }, { usuario: "CASA10", nuevoSaldo: "$195.000 (Mes actual en mora)" },
         { usuario: "CASA11", nuevoSaldo: "$0 (Al día)" }, { usuario: "CASA12", nuevoSaldo: "$190.000 (Mes actual en mora)" },
-        { usuario: "CASA13", nuevoSaldo: "$0 (Al día)" }, { usuario: "CASA14", nuevoSaldo: "$195.000 (Mes actual en mora)" },
+        { usuario: "CASA13", nuevoSaldo: "$0 (Al día)" }, { ...usuario: "CASA14", nuevoSaldo: "$195.000 (Mes actual en mora)" },
         { usuario: "CASA15", nuevoSaldo: "$0 (Al día)" }, { usuario: "CASA16", nuevoSaldo: "$195.000 (Mes actual en mora)" },
         { usuario: "CASA17", nuevoSaldo: "$0 (Al día)" }, { usuario: "CASA18", nuevoSaldo: "$195.000 (Mes actual en mora)" },
         { usuario: "CASA19", nuevoSaldo: "$0 (Al día)" }, { usuario: "CASA20", nuevoSaldo: "$190.000 (Mes actual en mora)" }
