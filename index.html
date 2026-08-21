@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bosques de Zapan 3 - Administración</title>
-    
-    <!-- 📦 Servidor alternativo de respaldo para la librería de Excel (Evita el error de Timed Out) -->
-    <script src="https://cloudflare.com"></script>
 
-    <!-- 🎨 DISEÑO INTEGRADO (Soluciona problemas de carga de diseño) -->
+    <!-- 🎨 DISEÑO E INTERFAZ VISUAL INTEGRADA -->
     <style>
         :root {
             --primary: #0275d8;
@@ -47,15 +44,7 @@
             margin-bottom: 20px;
         }
         .header-admin h2 { margin: 0; font-size: 24px; color: var(--dark); }
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .btn-danger { background-color: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 20px; }
         .tab { padding: 10px 20px; cursor: pointer; border: 1px solid transparent; margin-bottom: -1px; font-weight: 500; color: #555; }
         .tab.active { border: 1px solid #ddd; border-bottom-color: #fff; border-radius: 4px 4px 0 0; color: var(--primary); font-weight: bold; }
@@ -86,18 +75,18 @@
 
             <div id="secAdminCartera">
                 <div class="modulo-carga">
-                    <h3>⚡ Módulo de Integración y Carga Automatizada</h3>
+                    <h3>⚡ Módulo de Integración y Carga Automatizada (Modo Autónomo Local)</h3>
                     
                     <div class="file-input-wrapper">
-                        <label for="archivoExcel">1. SELECCIONAR BASE DE DATOS DE PRUEBA (EXCEL)</label><br>
-                        <input type="file" id="archivoExcel" accept=".xlsx, .xls">
+                        <label for="archivoExcel">1. SELECCIONAR ARCHIVO DE PROPIETARIOS (EXCEL CONVERTIDO / CSV)</label><br>
+                        <input type="file" id="archivoExcel">
                     </div>
 
-                    <button class="btn-block btn-success" id="btnProcesarExcel">📥 Cargar y Crear Usuarios desde Excel</button>
+                    <button class="btn-block btn-success" id="btnProcesarExcel">📥 Cargar y Crear Usuarios desde Archivo</button>
                     <button class="btn-block btn-primary">🔄 Simular Sincronización SISCO (00:00 AM)</button>
 
                     <div class="instrucciones">
-                        Sube tu archivo de Excel. El sistema extraerá los propietarios, creará sus cuentas con la contraseña temporal por defecto y los listará abajo.
+                        Sube tu archivo. El sistema cuenta con procesamiento nativo directo para archivos de texto delimitados por comas para evitar bloqueos del navegador.
                     </div>
                 </div>
             </div>
@@ -107,11 +96,11 @@
             </div>
         </div>
     </div>
-
-    <!-- ⚙️ LÓGICA DE PROGRAMACIÓN INTEGRADA (Evita el bloqueo de seguridad MIME de Render) -->
+    <!-- ⚙️ INICIO DE LA PROGRAMACIÓN JAVASCRIPT LOCAL -->
     <script>
         const cuentaAdministrador = [{ documento: "admin", contrasena: "admin123", nombre: "Administración Central", casa: "Oficina Principal", parqueadero: "Zonas de Visitantes", saldo: "N/A", primerIngreso: false }];
 
+        // Configura la base de datos interna dentro de tu propio navegador Chrome
         if (!localStorage.getItem('usuariosPropietarios')) {
             localStorage.setItem('usuariosPropietarios', JSON.stringify(cuentaAdministrador));
         }
@@ -119,6 +108,7 @@
         const obtenerUsuarios = () => JSON.parse(localStorage.getItem('usuariosPropietarios')) || cuentaAdministrador;
         const guardarUsuarios = (datos) => localStorage.setItem('usuariosPropietarios', JSON.stringify(datos));
 
+        // Vinculación directa con los componentes visuales de la interfaz
         const tabAdminCartera = document.getElementById('tabAdminCartera'), 
               tabAdminParqueaderos = document.getElementById('tabAdminParqueaderos'), 
               secAdminCartera = document.getElementById('secAdminCartera'), 
@@ -126,6 +116,7 @@
               btnCargarExcel = document.getElementById('btnProcesarExcel'),
               inputExcel = document.getElementById('archivoExcel');
 
+        // Control de navegación entre Cartera y Parqueaderos
         tabAdminCartera?.addEventListener('click', () => { 
             tabAdminCartera.classList.add('active'); tabAdminParqueaderos.classList.remove('active'); 
             secAdminCartera.classList.remove('hidden'); secAdminParqueaderos.classList.add('hidden'); 
@@ -135,56 +126,82 @@
             tabAdminParqueaderos.classList.add('active'); tabAdminCartera.classList.remove('active'); 
             secAdminParqueaderos.classList.remove('hidden'); secAdminCartera.classList.add('hidden'); 
         });
-
+        // Lógica de lectura nativa autónoma (No necesita internet ni librerías XLSX)
         btnCargarExcel?.addEventListener('click', () => {
             const archivosSeleccionados = inputExcel?.files;
+            
             if (!archivosSeleccionados || archivosSeleccionados.length === 0) {
-                return alert("Por favor, selecciona primero tu archivo corregido 'usuarios_limpios.xlsx'.");
+                return alert("Por favor, selecciona primero tu archivo de usuarios.");
             }
 
-            const lectorArchivo = new FileReader();
-            lectorArchivo.onload = (evento) => {
-                try {
-                    const bufferBinario = new Uint8Array(evento.target.result);
-                    const libroExcel = XLSX.read(bufferBinario, { type: 'array' });
-                    const contenidoHoja = libroExcel.Sheets[libroExcel.SheetNames[0]];
-                    const registrosJson = XLSX.utils.sheet_to_json(contenidoHoja);
+            const archivoUnico = archivosSeleccionados[0]; // Captura el archivo en la posición cero
+            const lectorTexto = new FileReader();
 
-                    if (registrosJson.length === 0) return alert("Error: El archivo no contiene datos válidos.");
+            lectorTexto.onload = (evento) => {
+                const contenidoCompleto = evento.target.result;
+                let registrosJson = [];
 
-                    let baseDatosUsuarios = obtenerUsuarios();
-                    let contador = 0;
+                // LECTURA DIRECTA DE TEXTO PLANO DEL ARCHIVO
+                if (contenidoCompleto.includes("Casa") || contenidoCompleto.includes("Propietario")) {
+                    const filas = contenidoCompleto.split(/\r?\n/);
+                    if (filas.length < 2) return alert("El archivo no tiene el formato de filas esperado.");
                     
-                    registrosJson.forEach(columna => {
-                        const documentoId = String(columna['ID USUARIO'] || columna['id_usuario'] || columna['Cedula'] || '').trim();
-                        const nombrePropietario = String(columna['Propietario'] || columna['propietario'] || '').trim();
-                        const numeroCasa = String(columna['Casa'] || columna['casa'] || '').trim();
+                    // Extrae la primera fila como nombres de columnas
+                    const encabezados = filas[0].split(',');
 
-                        if (documentoId && nombrePropietario) {
-                            if (!baseDatosUsuarios.some(u => u.documento === documentoId)) {
-                                baseDatosUsuarios.push({
-                                    documento: documentoId,
-                                    contrasena: 'ZAPAN3',
-                                    nombre: nombrePropietario,
-                                    casa: "Casa " + numeroCasa,
-                                    parqueadero: "Sin parqueadero asignado",
-                                    saldo: "$0 (Al día)",
-                                    primerIngreso: true
-                                });
-                                contador++;
-                            }
-                        }
-                    });
-
-                    guardarUsuarios(baseDatosUsuarios);
-                    alert(`¡Carga Exitosa! Propietarios nuevos registrados: ${contador}`);
-                    
-                } catch (error) {
-                    alert("Ocurrió un error leyendo el archivo binario. Verifique el formato.");
+                    for (let i = 1; i < filas.length; i++) {
+                        if (!filas[i].trim()) continue;
+                        const celdas = filas[i].split(',');
+                        let objetoFila = {};
+                        
+                        encabezados.forEach((header, index) => {
+                            objetoFila[header.trim()] = celdas[index] ? celdas[index].trim() : '';
+                        });
+                        registrosJson.push(objetoFila);
+                    }
+                    procesarEstructuraUsuarios(registrosJson);
+                } else {
+                    alert("Asegúrate de que estás usando el archivo de texto plano correcto.");
                 }
             };
-            lectorArchivo.readAsArrayBuffer(archivosSeleccionados[0]);
+
+            // Lee el archivo local de forma directa
+            lectorTexto.readAsText(archivoUnico, 'UTF-8');
         });
+
+        // Almacena permanentemente los 20 propietarios de forma local en tu computadora
+        function procesarEstructuraUsuarios(registros) {
+            if (registros.length === 0) {
+                return alert("Error: El archivo no contiene filas procesables.");
+            }
+
+            let baseDatosUsuarios = obtenerUsuarios();
+            let contador = 0;
+            
+            registros.forEach(columna => {
+                const documentoId = String(columna['ID USUARIO'] || columna['id_usuario'] || columna['Cedula'] || '').trim();
+                const nombrePropietario = String(columna['Propietario'] || columna['propietario'] || '').trim();
+                const numeroCasa = String(columna['Casa'] || columna['casa'] || '').trim();
+
+                if (documentoId && nombrePropietario) {
+                    if (!baseDatosUsuarios.some(u => u.documento === documentoId)) {
+                        baseDatosUsuarios.push({
+                            documento: documentoId,
+                            contrasena: 'ZAPAN3',
+                            nombre: nombrePropietario,
+                            casa: "Casa " + numeroCasa,
+                            parqueadero: "Sin parqueadero asignado",
+                            saldo: "$0 (Al día)",
+                            primerIngreso: true
+                        });
+                        contador++;
+                    }
+                }
+            });
+
+            guardarUsuarios(baseDatosUsuarios);
+            alert(`¡Carga Exitosa! Propietarios nuevos registrados de forma correcta: ${contador}`);
+        }
     </script>
 </body>
 </html>
