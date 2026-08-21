@@ -146,9 +146,9 @@ function irAlDashboard(usuario) {
         dashboardCard.classList.remove('hidden'); 
     }
 }
-// ==========================================================================
-// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL CORREGIDO DEFINITIVO
-// ==========================================================================
+// ==========================================
+// 📥 BLOQUE 4: RENDERIZACIÓN Y LECTOR EXCEL
+// ==========================================
 const renderUser = () => {
     if (!sesion) return;
     lblNombreUsuario.textContent = sesion.nombre; 
@@ -213,22 +213,23 @@ function renderParq() {
     });
 }
 
-document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
+// Escuchador nativo corregido apuntando explícitamente al archivo individual
+document.getElementById('btnProcesarExcel')?.addEventListener('click', (e) => {
+    e.preventDefault();
     const fileInput = document.getElementById('inputExcelUsuarios');
     
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
         return alert("⚠️ Por favor, seleccione primero el archivo de Excel en la sección superior.");
     }
 
-    // ⭐ CORRECCIÓN TÉCNICA DEFINITIVA: Se extrae el archivo único indexado en la posición cero [0] para el FileReader
-    const archivoUnico = fileInput.files[0]; 
+    const archivoSeleccionado = fileInput.files[0]; // Captura exacta del archivo en memoria
     const lector = new FileReader();
 
-    lector.onload = function(e) {
+    lector.onload = function(evt) {
         try {
-            const datosArrayBuffer = e.target.result;
+            const datosArrayBuffer = evt.target.result;
             const workbook = XLSX.read(datosArrayBuffer, { type: 'array' });
-            const nombreHoja = workbook.SheetNames[0]; // Captura segura de la primera pestaña de datos indexada en [0]
+            const nombreHoja = workbook.SheetNames[0]; // Captura robusta de la primera hoja
             const hojaContenido = workbook.Sheets[nombreHoja];
             const datosFilas = XLSX.utils.sheet_to_json(hojaContenido, { header: 1 });
 
@@ -293,10 +294,12 @@ document.getElementById('btnProcesarExcel')?.addEventListener('click', () => {
         }
     };
 
-    lector.readAsArrayBuffer(archivoUnico); 
+    lector.readAsArrayBuffer(archivoSeleccionado); // Lectura nativa binaria en búfer de bytes (.xlsx)
 });
 
-window.ejecutarSincronizacionSisco = function() {
+// Sincronización amarrada al nuevo botón por ID
+document.getElementById('btnSincronizarSisco')?.addEventListener('click', (e) => {
+    e.preventDefault();
     let listaActual = getUsers();
     const datosSisco = [
         { usuario: "CASA1", nuevoSaldo: "$0 (Al día)" }, { usuario: "CASA2", nuevoSaldo: "$190.000 (Mes actual en mora)" },
@@ -319,7 +322,7 @@ window.ejecutarSincronizacionSisco = function() {
     saveUsers(listaActual);
     renderAdmin();
     alert("🔄 SINCRO DIARIA CON SISCO (00:00 AM):\nSaldos de cartera actualizados exitosamente.");
-};
+});
 
 btnCerrarSesion?.addEventListener('click', () => { sesion = null; dashboardCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
 btnCerrarSesionAdmin?.addEventListener('click', () => { sesion = null; adminCard.classList.add('hidden'); authCard.classList.remove('hidden'); });
