@@ -1,5 +1,5 @@
 // ==========================================================================
-// 📦 SECCIÓN A: PERSISTENCIA LOCAL (LOCALSTORAGE) E INICIALIZACIÓN
+// 📦 SECCIÓN A: CONFIGURACIÓN INICIAL Y CONTROL DE PERSISTENCIA
 // ==========================================================================
 const cuentaAdministrador = [
     { 
@@ -13,7 +13,7 @@ const cuentaAdministrador = [
     }
 ];
 
-// Configura la base de datos simulada la primera vez
+// Comprobación y creación de la base de datos simulada en el navegador
 if (!localStorage.getItem('usuariosPropietarios')) {
     localStorage.setItem('usuariosPropietarios', JSON.stringify(cuentaAdministrador));
 }
@@ -22,7 +22,7 @@ const obtenerUsuarios = () => JSON.parse(localStorage.getItem('usuariosPropietar
 const guardarUsuarios = (datos) => localStorage.setItem('usuariosPropietarios', JSON.stringify(datos));
 
 // ==========================================================================
-// 🎛️ SECCIÓN B: INTERRUPTORES DE PESTAÑAS (DOM)
+// 🎛️ SECCIÓN B: CAPTURA DE INTERRUPTORES Y PESTAÑAS DEL DOM
 // ==========================================================================
 const tabAdminCartera = document.getElementById('tabAdminCartera'), 
       tabAdminParqueaderos = document.getElementById('tabAdminParqueaderos'), 
@@ -35,7 +35,7 @@ tabAdminCartera?.addEventListener('click', () => {
     tabAdminCartera.classList.add('active'); 
     tabAdminParqueaderos.classList.remove('active'); 
     secAdminCartera.classList.remove('hidden'); 
-    secAdminParqueaderos.classList.add('hidden'); 
+    secAdminParqueaderos.add('hidden'); 
 });
 
 tabAdminParqueaderos?.addEventListener('click', () => { 
@@ -46,12 +46,50 @@ tabAdminParqueaderos?.addEventListener('click', () => {
 });
 
 // ==========================================================================
-// 📥 SECCIÓN C: PROCESADOR EXCEL BINARIO E INTEGRACIÓN DE DATOS
+// 📥 SECCIÓN C: FUNCIÓN DE RENDERIZACIÓN SIN ERRORES DE SINTAXIS
+// ==========================================================================
+let sesion = cuentaAdministrador[0]; // Definición de sesión por defecto
+
+const renderUser = () => {
+    if (!sesion) return;
+    
+    const lblNombreUsuario = document.getElementById('lblNombreUsuario');
+    const lblInmueble = document.getElementById('lblInmueble');
+    if (lblNombreUsuario) lblNombreUsuario.textContent = sesion.nombre; 
+    if (lblInmueble) lblInmueble.textContent = sesion.casa; 
+    
+    const targetParq = document.getElementById('lblParqueadero');
+    if (targetParq) targetParq.textContent = sesion.parqueadero;
+    
+    let extra = 0;
+    if (sesion.parqueadero.includes("🚗")) extra = 30000;
+    else if (sesion.parqueadero.includes("🏍️")) extra = 15000;
+    
+    const recParqExtra = document.getElementById('recParqExtra');
+    const recTotalMes = document.getElementById('recTotalMes');
+    if (recParqExtra) recParqExtra.textContent = `$${extra.toLocaleString('es-CO')}`;
+    if (recTotalMes) recTotalMes.textContent = `$${(180000 + extra).toLocaleString('es-CO')}`;
+    
+    const lblSaldoBadge = document.getElementById('lblSaldoBadge');
+    if (lblSaldoBadge) {
+        lblSaldoBadge.textContent = sesion.saldo; 
+        if (sesion.saldo.includes("mora")) {
+            lblSaldoBadge.className = "status-badge status-red";
+        } else if (sesion.saldo.includes("pendiente") || sesion.saldo.includes("Acuerdo")) {
+            lblSaldoBadge.className = "status-badge status-yellow";
+        } else {
+            lblSaldoBadge.className = "status-badge status-green";
+        }
+    }
+};
+
+// ==========================================================================
+// 📥 SECCIÓN D: DECODIFICADOR EXCEL BINARIO E INTEGRACIÓN DE PROPIETARIOS
 // ==========================================================================
 btnCargarExcel?.addEventListener('click', () => {
     const archivosSeleccionados = inputExcel?.files;
     
-    // Alerta de validación inicial
+    // Alerta protectora de campo nulo
     if (!archivosSeleccionados || archivosSeleccionados.length === 0) {
         return alert("Por favor, selecciona primero tu archivo corregido 'usuarios_limpios.xlsx'.");
     }
@@ -62,13 +100,13 @@ btnCargarExcel?.addEventListener('click', () => {
     lectorArchivo.onload = (evento) => {
         try {
             const bufferBinario = new Uint8Array(evento.target.result);
-            const libroExcel = XLSX.read(bufferBinario, { type: 'array' });
             
-            // Accede a la primera pestaña de la hoja de cálculo
+            // Decodificación de la estructura mediante la librería SheetJS del HTML
+            const libroExcel = XLSX.read(bufferBinario, { type: 'array' });
             const nombreHoja = libroExcel.SheetNames[0];
             const contenidoHoja = libroExcel.Sheets[nombreHoja];
             
-            // Mapea la estructura binaria a objetos legibles de JavaScript (JSON)
+            // Conversión de matriz de celdas a objetos estructurados de base de datos
             const registrosJson = XLSX.utils.sheet_to_json(contenidoHoja);
 
             if (registrosJson.length === 0) {
@@ -79,15 +117,14 @@ btnCargarExcel?.addEventListener('click', () => {
             let contadorNuevosPropietarios = 0;
             
             registrosJson.forEach(columna => {
-                // Filtro dinámico compatible con mayúsculas/minúsculas o variaciones de nombres
-                const documentoId = String(columna['ID USUARIO'] || columna['id_usuario'] || columna['Cedula'] || '').trim();
+                // Filtro dinámico tolerante a mayúsculas/minúsculas de la primera fila
+                const documentoId = String(columna['ID USUARIO'] || columna['id_usuario'] || columna['Cedula'] || columna['cedula'] || '').trim();
                 const nombrePropietario = String(columna['Propietario'] || columna['propietario'] || '').trim();
                 const numeroCasa = String(columna['Casa'] || columna['casa'] || '').trim();
                 const claveAcceso = String(columna['CLAVE'] || columna['clave'] || 'ZAPAN3').trim();
 
-                // Registra el propietario si cuenta con cédula y nombre completos
                 if (documentoId && nombrePropietario) {
-                    // Evita duplicidades validando si la cédula ya existe en LocalStorage
+                    // Verificación de duplicación de llaves primarias (Cédulas)
                     if (!baseDatosUsuarios.some(u => u.documento === documentoId)) {
                         baseDatosUsuarios.push({
                             documento: documentoId,
@@ -96,23 +133,23 @@ btnCargarExcel?.addEventListener('click', () => {
                             casa: "Casa " + numeroCasa,
                             parqueadero: "Sin parqueadero asignado",
                             saldo: "$0 (Al día)",
-                            primerIngreso: true // Solicita cambio de clave por seguridad en su primer login
+                            primerIngreso: true
                         });
                         contadorNuevosPropietarios++;
                     }
                 }
             });
 
-            // Guarda los cambios actualizados en el navegador
+            // Guardado persistente local en el navegador
             guardarUsuarios(baseDatosUsuarios);
-            alert(`¡Carga Exitosa! Se ha procesado el archivo binario. Propietarios nuevos registrados: ${contadorNuevosPropietarios}`);
+            alert(`¡Carga Exitosa! Se han procesado los datos binarios. Nuevos propietarios registrados: ${contadorNuevosPropietarios}`);
             
         } catch (error) {
-            console.error("Detalle del fallo en la lectura binaria:", error);
+            console.error("Detalle del fallo técnico de lectura:", error);
             alert("Ocurrió un error leyendo el archivo binario. Verifique el formato.");
         }
     };
 
-    // Inicia la conversión binaria segura del archivo Excel
+    // Inicialización del lector de flujo binario
     lectorArchivo.readAsArrayBuffer(archivo);
 });
